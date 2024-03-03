@@ -12,6 +12,8 @@ aiogram = "^3.4.1"
 aiogram-dialog = "^2.1.0"
 python-dotenv = "^1.0.1"
 
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.6.2"
 
 [build-system]
 requires = ["poetry-core"]
