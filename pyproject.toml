@@ -11,6 +11,7 @@ python = "^3.11"
 aiogram = "^3.4.1"
 aiogram-dialog = "^2.1.0"
 python-dotenv = "^1.0.1"
+requests = "^2.31.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.2"
