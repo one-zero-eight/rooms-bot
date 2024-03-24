@@ -18,6 +18,9 @@ aiohttp = {version = "^3.9.3", extras = ["speedups"]}
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.2"
 
+[tool.ruff]
+line-length = 120
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
