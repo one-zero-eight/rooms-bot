@@ -5,6 +5,7 @@ description = ""
 authors = ["Maxim Fomin <m.fomin@innopolis.university>"]
 license = "MIT"
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -12,6 +13,7 @@ aiogram = "^3.4.1"
 aiogram-dialog = "^2.1.0"
 python-dotenv = "^1.0.1"
 requests = "^2.31.0"
+aiohttp = {version = "^3.9.3", extras = ["speedups"]}
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.2"

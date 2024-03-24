@@ -1,4 +1,8 @@
-from src.api.methods import api_client
+import os
+
+from src.api.methods import InNoHassleMusicRoomAPI
 
 
-__all__ = ["api_client"]
+client = InNoHassleMusicRoomAPI(os.getenv("API_URL"), os.getenv("API_SECRET"))
+
+__all__ = ["client", "InNoHassleMusicRoomAPI"]
