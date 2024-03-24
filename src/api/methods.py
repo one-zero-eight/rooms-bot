@@ -27,9 +27,7 @@ class InNoHassleMusicRoomAPI:
             data["user_id"] = user_id
         async with aiohttp.ClientSession() as session:
             r: aiohttp.ClientResponse
-            async with session.post(
-                self.url + path, json=data, headers={"X-Token": self.secret}
-            ) as r:
+            async with session.post(self.url + path, json=data, headers={"X-Token": self.secret}) as r:
                 if r.status != 200:
                     if r.status in (400, 422):
                         json = await r.json()
@@ -47,14 +45,10 @@ class InNoHassleMusicRoomAPI:
         return await self._post("/bot/room/create", user_id, room={"name": name})
 
     async def invite_person(self, alias: str, user_id: int) -> int:
-        return await self._post(
-            "/bot/invitation/create", user_id, addressee={"alias": alias}
-        )
+        return await self._post("/bot/invitation/create", user_id, addressee={"alias": alias})
 
     async def accept_invitation(self, id_: int, user_id: int) -> int:
-        return await self._post(
-            "/bot/invitation/accept", user_id, invitation={"id": id_}
-        )
+        return await self._post("/bot/invitation/accept", user_id, invitation={"id": id_})
 
     async def create_order(self, users: list[int], user_id: int) -> int:
         return await self._post("/bot/order/create", user_id, order={"users": users})
@@ -66,38 +60,25 @@ class InNoHassleMusicRoomAPI:
         return await self._post("/bot/task/modify", user_id, task=body.model_dump())
 
     async def get_daily_info(self, user_id: int) -> DailyInfoResponse:
-        return DailyInfoResponse.model_validate(
-            await self._post("/bot/room/daily_info", user_id)
-        )
+        return DailyInfoResponse.model_validate(await self._post("/bot/room/daily_info", user_id))
 
-    async def get_incoming_invitations(
-        self, alias: str, user_id: int
-    ) -> list[IncomingInvitationInfo]:
+    async def get_incoming_invitations(self, alias: str, user_id: int) -> list[IncomingInvitationInfo]:
         return [
             IncomingInvitationInfo.model_validate(obj)
-            for obj in await self._post("/bot/invitation/inbox", user_id, alias=alias)[
-                "invitations"
-            ]
+            for obj in await self._post("/bot/invitation/inbox", user_id, alias=alias)["invitations"]
         ]
 
     async def get_room_info(self, user_id: int) -> RoomInfoResponse:
-        return RoomInfoResponse.model_validate(
-            await self._post("/bot/room/info", user_id)
-        )
+        return RoomInfoResponse.model_validate(await self._post("/bot/room/info", user_id))
 
     async def leave_room(self, user_id: int) -> bool:
         return await self._post("/bot/room/leave", user_id)
 
     async def get_tasks(self, user_id: int) -> list[Task]:
-        return [
-            Task.model_validate(obj)
-            for obj in await self._post("/bot/task/list", user_id)["tasks"]
-        ]
+        return [Task.model_validate(obj) for obj in await self._post("/bot/task/list", user_id)["tasks"]]
 
     async def get_task_info(self, id_: int, user_id: int) -> TaskInfoResponse:
-        return TaskInfoResponse.model_validate(
-            await self._post("/bot/task/info", user_id, task={"id": id_})
-        )
+        return TaskInfoResponse.model_validate(await self._post("/bot/task/info", user_id, task={"id": id_}))
 
     async def get_sent_invitations(self, user_id: int) -> list[SentInvitationInfo]:
         return [
@@ -106,14 +87,10 @@ class InNoHassleMusicRoomAPI:
         ]
 
     async def delete_invitation(self, id_: int, user_id: int) -> bool:
-        return await self._post(
-            "/bot/invitation/delete", user_id, invitation={"id": id_}
-        )
+        return await self._post("/bot/invitation/delete", user_id, invitation={"id": id_})
 
     async def reject_invitation(self, id_: int, user_id: int) -> bool:
-        return await self._post(
-            "/bot/invitation/reject", user_id, invitation={"id": id_}
-        )
+        return await self._post("/bot/invitation/reject", user_id, invitation={"id": id_})
 
     async def get_order_info(self, id_: int, user_id: int) -> list[int]:
         return await self._post("/bot/order/info", user_id, order={"id": id_})["users"]
