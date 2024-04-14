@@ -17,8 +17,8 @@ INVITATIONS_BUTTON_ID = "invitations_button"
 CREATE_ROOM_BUTTON_ID = "create_room_button"
 
 
-async def process_result(start_data: Data, result: CreateRoomDialogResult, dialog_manager: DialogManager):
-    if result.ok:
+async def process_create_room_result(start_data: Data, result: CreateRoomDialogResult, dialog_manager: DialogManager):
+    if result.created:
         room_id = await client.create_room(result.name, dialog_manager.event.from_user.id)
         # noinspection PyTypeChecker
         await dialog_manager.start(
@@ -34,7 +34,10 @@ roomless_dialog = Dialog(
     Window(
         Const(WELCOME_MESSAGE),
         Row(
-            Button(Const("Invitations"), INVITATIONS_BUTTON_ID),
+            Button(
+                Const("Invitations"),
+                INVITATIONS_BUTTON_ID,
+            ),
             Button(
                 Const("Create"),
                 CREATE_ROOM_BUTTON_ID,
@@ -43,5 +46,5 @@ roomless_dialog = Dialog(
         ),
         state=RoomlessSG.welcome,
     ),
-    on_process_result=process_result,
+    on_process_result=process_create_room_result,
 )

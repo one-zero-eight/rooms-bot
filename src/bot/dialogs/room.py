@@ -5,7 +5,7 @@ from src.bot.dialogs.communication import RoomDialogStartData
 from src.bot.dialogs.states import RoomSG
 
 
-async def getter(dialog_manager: DialogManager):
+async def getter(dialog_manager: DialogManager, **kwargs):
     room_info: RoomDialogStartData = dialog_manager.dialog_data["room_info"]
     return {
         "room_id": room_info.id,

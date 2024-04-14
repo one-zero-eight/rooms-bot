@@ -8,17 +8,17 @@ from src.bot.dialogs.communication import CreateRoomDialogResult
 from src.bot.dialogs.states import CreateRoomSG
 
 
-NAME_INPUT_ID = "name_input"
+NAME_INPUT_ID = "input_name"
 
 
-async def text_handler(message: Message, widget, dialog_manager: DialogManager, _):
+async def text_handler(message: Message, widget, dialog_manager: DialogManager, text: str):
     await dialog_manager.done(CreateRoomDialogResult(name=message.text), show_mode=ShowMode.SEND)
 
 
 create_room_dialog = Dialog(
     Window(
         Const("Enter a room's name"),
-        Cancel(result=CreateRoomDialogResult(name=None, ok=False)),
+        Cancel(result=CreateRoomDialogResult(name=None, created=False)),
         TextInput(NAME_INPUT_ID, on_success=text_handler),
         state=CreateRoomSG.enter_name,
     )

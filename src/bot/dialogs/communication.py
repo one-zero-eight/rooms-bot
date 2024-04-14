@@ -4,7 +4,7 @@ from dataclasses import dataclass
 @dataclass
 class CreateRoomDialogResult:
     name: str | None
-    ok: bool = True
+    created: bool = True
 
 
 @dataclass
