@@ -65,7 +65,7 @@ class InNoHassleMusicRoomAPI:
     async def get_incoming_invitations(self, alias: str, user_id: int) -> list[IncomingInvitationInfo]:
         return [
             IncomingInvitationInfo.model_validate(obj)
-            for obj in await self._post("/bot/invitation/inbox", user_id, alias=alias)["invitations"]
+            for obj in (await self._post("/bot/invitation/inbox", user_id, alias=alias))["invitations"]
         ]
 
     async def get_room_info(self, user_id: int) -> RoomInfoResponse:
@@ -75,7 +75,7 @@ class InNoHassleMusicRoomAPI:
         return await self._post("/bot/room/leave", user_id)
 
     async def get_tasks(self, user_id: int) -> list[Task]:
-        return [Task.model_validate(obj) for obj in await self._post("/bot/task/list", user_id)["tasks"]]
+        return [Task.model_validate(obj) for obj in (await self._post("/bot/task/list", user_id))["tasks"]]
 
     async def get_task_info(self, id_: int, user_id: int) -> TaskInfoResponse:
         return TaskInfoResponse.model_validate(await self._post("/bot/task/info", user_id, task={"id": id_}))
@@ -83,7 +83,7 @@ class InNoHassleMusicRoomAPI:
     async def get_sent_invitations(self, user_id: int) -> list[SentInvitationInfo]:
         return [
             SentInvitationInfo.model_validate(obj)
-            for obj in await self._post("/bot/invitation/sent", user_id)["invitations"]
+            for obj in (await self._post("/bot/invitation/sent", user_id))["invitations"]
         ]
 
     async def delete_invitation(self, id_: int, user_id: int) -> bool:
@@ -93,4 +93,4 @@ class InNoHassleMusicRoomAPI:
         return await self._post("/bot/invitation/reject", user_id, invitation={"id": id_})
 
     async def get_order_info(self, id_: int, user_id: int) -> list[int]:
-        return await self._post("/bot/order/info", user_id, order={"id": id_})["users"]
+        return (await self._post("/bot/order/info", user_id, order={"id": id_}))["users"]
