@@ -62,10 +62,10 @@ class InNoHassleMusicRoomAPI:
     async def get_daily_info(self, user_id: int) -> DailyInfoResponse:
         return DailyInfoResponse.model_validate(await self._post("/bot/room/daily_info", user_id))
 
-    async def get_incoming_invitations(self, alias: str, user_id: int) -> list[IncomingInvitationInfo]:
+    async def get_incoming_invitations(self, user_id: int) -> list[IncomingInvitationInfo]:
         return [
             IncomingInvitationInfo.model_validate(obj)
-            for obj in (await self._post("/bot/invitation/inbox", user_id, alias=alias))["invitations"]
+            for obj in (await self._post("/bot/invitation/inbox", user_id))["invitations"]
         ]
 
     async def get_room_info(self, user_id: int) -> RoomInfoResponse:
@@ -94,3 +94,6 @@ class InNoHassleMusicRoomAPI:
 
     async def get_order_info(self, id_: int, user_id: int) -> list[int]:
         return (await self._post("/bot/order/info", user_id, order={"id": id_}))["users"]
+
+    async def save_user_alias(self, alias: str, user_id: int) -> bool:
+        return await self._post("/bot/user/save_alias", user_id, alias=alias)
