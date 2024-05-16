@@ -11,6 +11,7 @@ from src.bot.dialogs.create_room import create_room_dialog
 from src.bot.dialogs import roomless_dialog
 from src.bot.dialogs.room import room_dialog
 from src.bot.start_message import start_message_handler
+from src.bot.middleware import UpdateUserInfoMiddleware
 
 
 async def main():
@@ -19,6 +20,7 @@ async def main():
 
     bot = Bot(token=os.getenv("BOT_TOKEN"))
     dp = Dispatcher()
+    dp.message.middleware(UpdateUserInfoMiddleware())
     dp.message.register(start_message_handler, CommandStart())
     dp.include_routers(roomless_dialog, create_room_dialog, room_dialog)
 
