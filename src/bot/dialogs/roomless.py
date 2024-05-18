@@ -60,8 +60,8 @@ async def invitations_getter(dialog_manager: DialogManager, **kwargs):
     invitations: list[Invitation] = []
     i: IncomingInvitationInfo
     for i in invitations_data:
-        from_ = f" (from @{i.sender_alias})" if i.sender_alias is not None else ""
-        invitations.append(Invitation(id=i.id, room_name=i.room_name, sender_alias=i.sender_alias, from_=from_))
+        from_ = f" (from @{i.sender.alias})" if i.sender.alias is not None else ""
+        invitations.append(Invitation(id=i.id, room_name=i.room_name, sender_alias=i.sender.alias, from_=from_))
     return {
         "invitation_count": n,
         "invitations": invitations,

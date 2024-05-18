@@ -97,3 +97,6 @@ class InNoHassleMusicRoomAPI:
 
     async def save_user_alias(self, alias: str, user_id: int) -> bool:
         return await self._post("/bot/user/save_alias", user_id, alias=alias)
+
+    async def save_user_fullname(self, fullname: str, user_id: int) -> bool:
+        return await self._post("/bot/user/save_fullname", user_id, fullname=fullname)

@@ -1,4 +1,4 @@
-from .alias_cachers import AliasCacher, MemoryAliasCacher
+from .alias_cachers import AliasCacher, MemoryAliasCacher, UserInfo
 
 
-__all__ = ["AliasCacher", "MemoryAliasCacher"]
+__all__ = ["AliasCacher", "MemoryAliasCacher", "UserInfo"]
