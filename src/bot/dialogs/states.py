@@ -12,3 +12,6 @@ class RoomlessSG(StatesGroup):
 
 class RoomSG(StatesGroup):
     main = State()
+    roommates = State()
+    invitations = State()
+    leave = State()

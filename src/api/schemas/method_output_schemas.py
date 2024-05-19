@@ -17,6 +17,16 @@ class UserInfo(BaseModel):
     alias: str | None
     fullname: str | None
 
+    def __init__(self, alias: str, fullname: str):
+        super().__init__(alias=alias, fullname=fullname)
+
+    def empty(self) -> bool:
+        return self.alias is None and self.fullname is None
+
+    @property
+    def repr(self) -> str:
+        return self.fullname + (f" (@{self.alias})" if self.alias is not None else "")
+
 
 class IncomingInvitationInfo(BaseModel):
     id: int
