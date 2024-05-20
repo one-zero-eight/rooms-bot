@@ -7,7 +7,6 @@ class CreateRoomSG(StatesGroup):
 
 class RoomlessSG(StatesGroup):
     welcome = State()
-    invitations = State()
 
 
 class RoomSG(StatesGroup):
@@ -15,3 +14,16 @@ class RoomSG(StatesGroup):
     roommates = State()
     invitations = State()
     leave = State()
+
+
+class IncomingInvitationsSG(StatesGroup):
+    list = State()
+    delete = State()
+    accept = State()
+
+
+class ConfirmationSG(StatesGroup):
+    main = State()
+
+
+__all__ = ["CreateRoomSG", "RoomlessSG", "RoomSG", "IncomingInvitationsSG", "ConfirmationSG"]

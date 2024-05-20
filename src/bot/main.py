@@ -7,9 +7,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
 from aiogram_dialog import setup_dialogs
 
-from src.bot.dialogs.create_room import create_room_dialog
-from src.bot.dialogs import roomless_dialog
-from src.bot.dialogs.room import room_dialog
+from src.bot.dialogs import dialogs
 from src.bot.start_message import start_message_handler
 from src.bot.middleware import UpdateUserInfoMiddleware
 from src.bot.cachers import MemoryAliasCacher
@@ -23,7 +21,7 @@ async def main():
     dp = Dispatcher()
     dp.message.middleware(UpdateUserInfoMiddleware(MemoryAliasCacher()))
     dp.message.register(start_message_handler, CommandStart())
-    dp.include_routers(roomless_dialog, create_room_dialog, room_dialog)
+    dp.include_routers(*dialogs)
 
     setup_dialogs(dp)
     await dp.start_polling(bot)

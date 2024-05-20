@@ -1,3 +1,5 @@
+import dataclasses
+
 from aiogram.types import Message
 from aiogram_dialog import DialogManager, StartMode
 
@@ -15,10 +17,9 @@ async def start_message_handler(message: Message, dialog_manager: DialogManager)
 
     try:
         room_info = await client.get_room_info(user_id)
-        # noinspection PyTypeChecker
         await dialog_manager.start(
             RoomSG.main,
-            data=RoomDialogStartData(room_info.id, room_info.name),
+            data={"input": dataclasses.asdict(RoomDialogStartData(room_info.id, room_info.name))},
             mode=StartMode.RESET_STACK,
         )
     except RuntimeError:

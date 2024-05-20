@@ -33,8 +33,8 @@ async def getter(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def on_start(start_data: RoomDialogStartData, manager: DialogManager):
-    manager.dialog_data["room_info"] = start_data
+async def on_start(start_data: dict, manager: DialogManager):
+    manager.dialog_data["room_info"] = RoomDialogStartData(**start_data["input"])
     await Loader.load_daily_info(manager)
 
 
@@ -67,6 +67,7 @@ class Loader:
 
 
 room_dialog = Dialog(
+    # Main page
     Window(
         Format("Your room: {room_name}\nID: {room_id}\n\n{daily_info}"),
         Row(
@@ -86,12 +87,13 @@ room_dialog = Dialog(
             Button(Const("Tasks"), MainWindowConsts.TASKS_BUTTON_ID),
         ),
         Row(
-            Button(Const("My invitations"), MainWindowConsts.INVITATIONS_BUTTON_ID),
+            Button(Const("Invitations"), MainWindowConsts.INVITATIONS_BUTTON_ID),
             Button(Const("Leave"), MainWindowConsts.LEAVE_BUTTON_ID),
         ),
         getter=getter,
         state=RoomSG.main,
     ),
+    # Roommate list
     Window(
         List(
             Format("{pos}. {item.repr}"),
