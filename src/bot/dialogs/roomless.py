@@ -20,22 +20,24 @@ You can:
     CREATE_ROOM_BUTTON_ID = "create_room_button"
 
 
-async def process_create_room_result(start_data: Data, result: CreateRoomDialogResult, manager: DialogManager):
-    if not start_data:
-        return
+class Events:
+    @staticmethod
+    async def process_create_room_result(start_data: Data, result: CreateRoomDialogResult, manager: DialogManager):
+        if not isinstance(start_data, dict):
+            return
 
-    if start_data["intent"] == "create_room":
-        if result.created:
-            room_id = await client.create_room(result.name, manager.event.from_user.id)
-            await manager.start(
-                RoomSG.main,
-                data={"input": dataclasses.asdict(RoomDialogStartData(room_id, result.name))},
-                mode=StartMode.RESET_STACK,
-            )
+        if start_data["intent"] == "create_room":
+            if result.created:
+                room_id = await client.create_room(result.name, manager.event.from_user.id)
+                await manager.start(
+                    RoomSG.main,
+                    data={"input": dataclasses.asdict(RoomDialogStartData(room_id, result.name))},
+                    mode=StartMode.RESET_STACK,
+                )
 
-
-async def start_creating_room(event: CallbackQuery, button: Button, dialog_manager: DialogManager):
-    await dialog_manager.start(CreateRoomSG.enter_name, data={"intent": "create_room"}, show_mode=ShowMode.SEND)
+    @staticmethod
+    async def on_click_create_room(event: CallbackQuery, button: Button, dialog_manager: DialogManager):
+        await dialog_manager.start(CreateRoomSG.enter_name, data={"intent": "create_room"}, show_mode=ShowMode.SEND)
 
 
 roomless_dialog = Dialog(
@@ -51,10 +53,10 @@ roomless_dialog = Dialog(
             Button(
                 Const("Create"),
                 WelcomeWindowConsts.CREATE_ROOM_BUTTON_ID,
-                on_click=start_creating_room,
+                on_click=Events.on_click_create_room,
             ),
         ),
         state=RoomlessSG.welcome,
     ),
-    on_process_result=process_create_room_result,
+    on_process_result=Events.process_create_room_result,
 )

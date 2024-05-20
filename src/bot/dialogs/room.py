@@ -1,19 +1,22 @@
+import dataclasses
+
 from aiogram.types import CallbackQuery
-from aiogram_dialog import Dialog, Window, DialogManager
+from aiogram_dialog import Dialog, Window, DialogManager, ShowMode, StartMode
 from aiogram_dialog.widgets.kbd import Row, Button, SwitchTo
 from aiogram_dialog.widgets.text import Format, Const, List
 
 from src.api import client
 from src.api.schemas.method_output_schemas import DailyInfoResponse, UserInfo
-from src.bot.dialogs.communication import RoomDialogStartData
-from src.bot.dialogs.states import RoomSG
+from src.bot.dialogs.communication import RoomDialogStartData, ConfirmationDialogStartData
+from src.bot.dialogs.states import RoomSG, ConfirmationSG, RoomlessSG
 
 
 class MainWindowConsts:
     REFRESH_BUTTON_ID = "refresh_button"
     ROOMMATES_BUTTON_ID = "roommates_button"
     TASKS_BUTTON_ID = "tasks_button"
-    INVITATIONS_BUTTON_ID = "invitations_button"
+    INBOX_BUTTON_ID = "incoming_invitations_button"
+    MY_INVITATIONS_BUTTON_ID = "my_invitations_button"
     LEAVE_BUTTON_ID = "leave_button"
 
 
@@ -33,9 +36,45 @@ async def getter(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def on_start(start_data: dict, manager: DialogManager):
-    manager.dialog_data["room_info"] = RoomDialogStartData(**start_data["input"])
-    await Loader.load_daily_info(manager)
+class Events:
+    @staticmethod
+    async def on_start(start_data: dict, manager: DialogManager):
+        manager.dialog_data["room_info"] = RoomDialogStartData(**start_data["input"])
+        await Loader.load_daily_info(manager)
+
+    @staticmethod
+    async def on_leave(callback: CallbackQuery, button, manager: DialogManager):
+        room_name: str = manager.dialog_data["room_info"].name
+        await manager.start(
+            ConfirmationSG.main,
+            data={
+                "intent": "leave",
+                "input": dataclasses.asdict(
+                    ConfirmationDialogStartData(
+                        "you want to leave the room",
+                        f'You have left the room "{room_name}"',
+                    )
+                ),
+            },
+            show_mode=ShowMode.SEND,
+        )
+
+    @staticmethod
+    async def on_process_result(start_data: dict, result: bool, manager: DialogManager):
+        if not isinstance(start_data, dict):
+            return
+        if not result:
+            await manager.show(ShowMode.SEND)
+            return
+
+        user_id = manager.event.from_user.id
+        if start_data["intent"] == "leave":
+            await client.leave_room(user_id)
+            await manager.start(
+                RoomlessSG.welcome,
+                mode=StartMode.RESET_STACK,
+                show_mode=ShowMode.SEND,
+            )
 
 
 class Loader:
@@ -87,8 +126,9 @@ room_dialog = Dialog(
             Button(Const("Tasks"), MainWindowConsts.TASKS_BUTTON_ID),
         ),
         Row(
-            Button(Const("Invitations"), MainWindowConsts.INVITATIONS_BUTTON_ID),
-            Button(Const("Leave"), MainWindowConsts.LEAVE_BUTTON_ID),
+            Button(Const("Inbox"), MainWindowConsts.INBOX_BUTTON_ID),
+            Button(Const("My invitations"), MainWindowConsts.MY_INVITATIONS_BUTTON_ID),
+            Button(Const("Leave"), MainWindowConsts.LEAVE_BUTTON_ID, on_click=Events.on_leave),
         ),
         getter=getter,
         state=RoomSG.main,
@@ -108,5 +148,6 @@ room_dialog = Dialog(
         state=RoomSG.roommates,
         getter=getter,
     ),
-    on_start=on_start,
+    on_start=Events.on_start,
+    on_process_result=Events.on_process_result,
 )

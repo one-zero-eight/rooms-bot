@@ -31,84 +31,90 @@ class Loader:
         manager.dialog_data["invitations"] = invitations_data
 
 
-async def on_start(_, manager: DialogManager):
-    await Loader.load_invitations(manager)
+class Events:
+    @staticmethod
+    async def on_start(_, manager: DialogManager):
+        await Loader.load_invitations(manager)
 
+    @staticmethod
+    def _select_invitation(func):
+        async def wrapped(callback: CallbackQuery, widget, manager: DialogManager):
+            assert isinstance(manager, SubManager)
 
-def select_invitation(func):
-    async def wrapped(callback: CallbackQuery, widget, manager: DialogManager):
-        assert isinstance(manager, SubManager)
+            invitations: list[IncomingInvitationInfo] = manager.dialog_data["invitations"]
+            for i in invitations:
+                if i.id == int(manager.item_id):
+                    manager.dialog_data["selected_item"] = i
+                    break
+            else:
+                raise RuntimeError("Selected non-existent room")
 
-        invitations: list[IncomingInvitationInfo] = manager.dialog_data["invitations"]
-        for i in invitations:
-            if i.id == int(manager.item_id):
-                manager.dialog_data["selected_item"] = i
-                break
-        else:
-            raise RuntimeError("Selected non-existent room")
+            await func(callback, widget, manager)
 
-        await func(callback, widget, manager)
+        return wrapped
 
-    return wrapped
+    @staticmethod
+    @_select_invitation
+    async def on_accept_invitation(callback: CallbackQuery, widget, manager: DialogManager):
+        invitation: IncomingInvitationInfo = manager.dialog_data["selected_item"]
+        room_name: str = invitation.room_name
 
-
-@select_invitation
-async def on_accept_invitation(callback: CallbackQuery, widget, manager: DialogManager):
-    invitation: IncomingInvitationInfo = manager.dialog_data["selected_item"]
-    room_name: str = invitation.room_name
-
-    await manager.start(
-        ConfirmationSG.main,
-        data={
-            "intent": "accept",
-            "input": dataclasses.asdict(
-                ConfirmationDialogStartData(
-                    f"you want to accept the invitation to {room_name}",
-                    "Accepted",
-                )
-            ),
-        },
-        show_mode=ShowMode.SEND,
-    )
-
-
-@select_invitation
-async def on_reject_invitation(callback: CallbackQuery, widget, manager: DialogManager):
-    invitation: IncomingInvitationInfo = manager.dialog_data["selected_item"]
-    room_name: str = invitation.room_name
-
-    await manager.start(
-        ConfirmationSG.main,
-        data={
-            "intent": "reject",
-            "input": dataclasses.asdict(
-                ConfirmationDialogStartData(
-                    f"you want to reject the invitation to {room_name}",
-                    "Rejected",
-                )
-            ),
-        },
-        show_mode=ShowMode.SEND,
-    )
-
-
-async def process_result(start_data: dict, result: dict, manager: DialogManager):
-    if not start_data or not result:
-        return
-
-    invitation: IncomingInvitationInfo = manager.dialog_data["selected_item"]
-    user_id = manager.event.from_user.id
-    if start_data["intent"] == "accept":
-        await client.accept_invitation(invitation.id, user_id)
         await manager.start(
-            RoomSG.main,
-            data={"input": dataclasses.asdict(RoomDialogStartData(invitation.room, invitation.room_name))},
-            mode=StartMode.RESET_STACK,
+            ConfirmationSG.main,
+            data={
+                "intent": "accept",
+                "input": dataclasses.asdict(
+                    ConfirmationDialogStartData(
+                        f"you want to accept the invitation to {room_name}",
+                        "Accepted",
+                    )
+                ),
+            },
             show_mode=ShowMode.SEND,
         )
-    elif start_data["intent"] == "reject":
-        await client.reject_invitation(invitation.id, user_id)
-        await Loader.load_invitations(manager)
+
+    @staticmethod
+    @_select_invitation
+    async def on_reject_invitation(callback: CallbackQuery, widget, manager: DialogManager):
+        invitation: IncomingInvitationInfo = manager.dialog_data["selected_item"]
+        room_name: str = invitation.room_name
+
+        await manager.start(
+            ConfirmationSG.main,
+            data={
+                "intent": "reject",
+                "input": dataclasses.asdict(
+                    ConfirmationDialogStartData(
+                        f"you want to reject the invitation to {room_name}",
+                        "Rejected",
+                    )
+                ),
+            },
+            show_mode=ShowMode.SEND,
+        )
+
+    @staticmethod
+    async def on_process_result(start_data: dict, result: bool, manager: DialogManager):
+        if not isinstance(start_data, dict):
+            return
+        if not result:
+            await manager.show(ShowMode.SEND)
+            return
+
+        invitation: IncomingInvitationInfo = manager.dialog_data["selected_item"]
+        user_id = manager.event.from_user.id
+        if start_data["intent"] == "accept":
+            await client.accept_invitation(invitation.id, user_id)
+            await manager.start(
+                RoomSG.main,
+                data={"input": dataclasses.asdict(RoomDialogStartData(invitation.room, invitation.room_name))},
+                mode=StartMode.RESET_STACK,
+                show_mode=ShowMode.SEND,
+            )
+        elif start_data["intent"] == "reject":
+            await client.reject_invitation(invitation.id, user_id)
+            await Loader.load_invitations(manager)
+            await manager.show(ShowMode.SEND)
 
 
 async def invitations_getter(dialog_manager: DialogManager, **kwargs):
@@ -148,12 +154,12 @@ incoming_invitations_dialog = Dialog(
             Row(
                 Button(
                     Format("{pos}. {item.room_name}"),
-                    on_click=on_accept_invitation,
+                    on_click=Events.on_accept_invitation,
                     id=InvitationsWindowConsts.ACCEPT_BUTTON_ID,
                 ),
                 Button(
                     Const("Reject"),
-                    on_click=on_reject_invitation,
+                    on_click=Events.on_reject_invitation,
                     id=InvitationsWindowConsts.REJECT_BUTTON_ID,
                 ),
             ),
@@ -164,6 +170,6 @@ incoming_invitations_dialog = Dialog(
         state=IncomingInvitationsSG.list,
         getter=invitations_getter,
     ),
-    on_process_result=process_result,
-    on_start=on_start,
+    on_process_result=Events.on_process_result,
+    on_start=Events.on_start,
 )

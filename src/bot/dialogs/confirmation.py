@@ -24,7 +24,7 @@ async def on_select(callback: CallbackQuery, select, manager: DialogManager, ite
     answer = confirmation.yes_message if confirmed else confirmation.no_message
     if answer is not None:
         await callback.bot.send_message(callback.message.chat.id, answer)
-    await manager.done(confirmed, show_mode=ShowMode.SEND)
+    await manager.done(confirmed, show_mode=ShowMode.NO_UPDATE)
 
 
 confirmation_dialog = Dialog(

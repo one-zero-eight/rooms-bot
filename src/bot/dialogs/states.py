@@ -13,7 +13,6 @@ class RoomSG(StatesGroup):
     main = State()
     roommates = State()
     invitations = State()
-    leave = State()
 
 
 class IncomingInvitationsSG(StatesGroup):
