@@ -2,13 +2,17 @@ import dataclasses
 
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, Window, DialogManager, ShowMode, StartMode
-from aiogram_dialog.widgets.kbd import Row, Button, SwitchTo
+from aiogram_dialog.widgets.kbd import Row, Button, SwitchTo, Start
 from aiogram_dialog.widgets.text import Format, Const, List
 
 from src.api import client
 from src.api.schemas.method_output_schemas import DailyInfoResponse, UserInfo
-from src.bot.dialogs.communication import RoomDialogStartData, ConfirmationDialogStartData
-from src.bot.dialogs.states import RoomSG, ConfirmationSG, RoomlessSG
+from src.bot.dialogs.communication import (
+    RoomDialogStartData,
+    ConfirmationDialogStartData,
+    IncomingInvitationDialogStartData,
+)
+from src.bot.dialogs.states import RoomSG, ConfirmationSG, RoomlessSG, IncomingInvitationsSG
 
 
 class MainWindowConsts:
@@ -60,15 +64,16 @@ class Events:
         )
 
     @staticmethod
-    async def on_process_result(start_data: dict, result: bool, manager: DialogManager):
+    async def on_process_result(start_data: dict, result: bool | None, manager: DialogManager):
         if not isinstance(start_data, dict):
             return
-        if not result:
-            await manager.show(ShowMode.SEND)
-            return
 
-        user_id = manager.event.from_user.id
         if start_data["intent"] == "leave":
+            if result is False:
+                await manager.show(ShowMode.SEND)
+                return
+
+            user_id = manager.event.from_user.id
             await client.leave_room(user_id)
             await manager.start(
                 RoomlessSG.welcome,
@@ -126,7 +131,15 @@ room_dialog = Dialog(
             Button(Const("Tasks"), MainWindowConsts.TASKS_BUTTON_ID),
         ),
         Row(
-            Button(Const("Inbox"), MainWindowConsts.INBOX_BUTTON_ID),
+            Start(
+                Const("Inbox"),
+                id=MainWindowConsts.INBOX_BUTTON_ID,
+                state=IncomingInvitationsSG.list,
+                data={
+                    "intent": "invitations",
+                    "input": dataclasses.asdict(IncomingInvitationDialogStartData(False)),
+                },
+            ),
             Button(Const("My invitations"), MainWindowConsts.MY_INVITATIONS_BUTTON_ID),
             Button(Const("Leave"), MainWindowConsts.LEAVE_BUTTON_ID, on_click=Events.on_leave),
         ),

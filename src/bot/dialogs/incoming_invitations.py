@@ -7,7 +7,11 @@ from aiogram_dialog.widgets.text import Const, Format, List, Case
 
 from src.api import client
 from src.api.schemas.method_output_schemas import IncomingInvitationInfo
-from src.bot.dialogs.communication import ConfirmationDialogStartData, RoomDialogStartData
+from src.bot.dialogs.communication import (
+    ConfirmationDialogStartData,
+    RoomDialogStartData,
+    IncomingInvitationDialogStartData,
+)
 from src.bot.dialogs.states import IncomingInvitationsSG, ConfirmationSG, RoomSG
 
 
@@ -33,7 +37,8 @@ class Loader:
 
 class Events:
     @staticmethod
-    async def on_start(_, manager: DialogManager):
+    async def on_start(start_data: dict, manager: DialogManager):
+        manager.dialog_data["dialog_args"] = IncomingInvitationDialogStartData(**start_data["input"])
         await Loader.load_invitations(manager)
 
     @staticmethod
@@ -56,6 +61,9 @@ class Events:
     @staticmethod
     @_select_invitation
     async def on_accept_invitation(callback: CallbackQuery, widget, manager: DialogManager):
+        if manager.dialog_data["dialog_args"].can_accept is False:
+            return
+
         invitation: IncomingInvitationInfo = manager.dialog_data["selected_item"]
         room_name: str = invitation.room_name
 

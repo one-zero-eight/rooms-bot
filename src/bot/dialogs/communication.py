@@ -27,4 +27,9 @@ class ConfirmationDialogStartData:
         return self.format.format(self.content)
 
 
+@dataclass
+class IncomingInvitationDialogStartData:
+    can_accept: bool
+
+
 __all__ = ["CreateRoomDialogResult", "RoomDialogStartData", "ConfirmationDialogStartData"]

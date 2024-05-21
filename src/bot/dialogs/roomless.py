@@ -6,7 +6,7 @@ from aiogram_dialog.widgets.kbd import Row, Button, Start
 from aiogram_dialog.widgets.text import Const
 
 from src.api import client
-from src.bot.dialogs.communication import CreateRoomDialogResult, RoomDialogStartData
+from src.bot.dialogs.communication import CreateRoomDialogResult, RoomDialogStartData, IncomingInvitationDialogStartData
 from src.bot.dialogs.states import RoomlessSG, CreateRoomSG, RoomSG, IncomingInvitationsSG
 
 
@@ -49,6 +49,10 @@ roomless_dialog = Dialog(
                 Const("Invitations"),
                 id=WelcomeWindowConsts.INVITATIONS_BUTTON_ID,
                 state=IncomingInvitationsSG.list,
+                data={
+                    "intent": "invitations",
+                    "input": dataclasses.asdict(IncomingInvitationDialogStartData(True)),
+                },
             ),
             Button(
                 Const("Create"),
