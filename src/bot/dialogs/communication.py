@@ -32,4 +32,9 @@ class IncomingInvitationDialogStartData:
     can_accept: bool
 
 
-__all__ = ["CreateRoomDialogResult", "RoomDialogStartData", "ConfirmationDialogStartData"]
+__all__ = [
+    "CreateRoomDialogResult",
+    "RoomDialogStartData",
+    "ConfirmationDialogStartData",
+    "IncomingInvitationDialogStartData",
+]

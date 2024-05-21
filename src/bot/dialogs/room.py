@@ -12,7 +12,7 @@ from src.bot.dialogs.communication import (
     ConfirmationDialogStartData,
     IncomingInvitationDialogStartData,
 )
-from src.bot.dialogs.states import RoomSG, ConfirmationSG, RoomlessSG, IncomingInvitationsSG
+from src.bot.dialogs.states import RoomSG, ConfirmationSG, RoomlessSG, IncomingInvitationsSG, OutgoingInvitationsSG
 
 
 class MainWindowConsts:
@@ -136,11 +136,18 @@ room_dialog = Dialog(
                 id=MainWindowConsts.INBOX_BUTTON_ID,
                 state=IncomingInvitationsSG.list,
                 data={
-                    "intent": "invitations",
+                    "intent": "inbox",
                     "input": dataclasses.asdict(IncomingInvitationDialogStartData(False)),
                 },
             ),
-            Button(Const("My invitations"), MainWindowConsts.MY_INVITATIONS_BUTTON_ID),
+            Start(
+                Const("My invitations"),
+                id=MainWindowConsts.MY_INVITATIONS_BUTTON_ID,
+                state=OutgoingInvitationsSG.list,
+                data={
+                    "intent": "sent_invitations",
+                },
+            ),
             Button(Const("Leave"), MainWindowConsts.LEAVE_BUTTON_ID, on_click=Events.on_leave),
         ),
         getter=getter,

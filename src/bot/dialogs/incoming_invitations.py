@@ -1,7 +1,7 @@
 import dataclasses
 
 from aiogram.types import CallbackQuery
-from aiogram_dialog import Dialog, Window, DialogManager, SubManager, ShowMode, StartMode
+from aiogram_dialog import Dialog, Window, DialogManager, ShowMode, StartMode
 from aiogram_dialog.widgets.kbd import Row, Cancel, ListGroup, Button
 from aiogram_dialog.widgets.text import Const, Format, List, Case
 
@@ -13,15 +13,14 @@ from src.bot.dialogs.communication import (
     IncomingInvitationDialogStartData,
 )
 from src.bot.dialogs.states import IncomingInvitationsSG, ConfirmationSG, RoomSG
+from src.bot.utils import select_invitation
 
 
 class InvitationsWindowConsts:
     INVITATION_LIST_HEADER = """Incoming invitations:\n"""
     NO_INVITATIONS_TEXT = "No invitations :("
-    INVITE_BUTTON_TEXT = "Invite a person"
 
     INVITATIONS_LIST_ID = "invitation_list_group"
-    INVITE_BUTTON_ID = "invite_button"
     ACCEPT_BUTTON_ID = "accept_button"
     REJECT_BUTTON_ID = "reject_button"
 
@@ -42,24 +41,7 @@ class Events:
         await Loader.load_invitations(manager)
 
     @staticmethod
-    def _select_invitation(func):
-        async def wrapped(callback: CallbackQuery, widget, manager: DialogManager):
-            assert isinstance(manager, SubManager)
-
-            invitations: list[IncomingInvitationInfo] = manager.dialog_data["invitations"]
-            for i in invitations:
-                if i.id == int(manager.item_id):
-                    manager.dialog_data["selected_item"] = i
-                    break
-            else:
-                raise RuntimeError("Selected non-existent room")
-
-            await func(callback, widget, manager)
-
-        return wrapped
-
-    @staticmethod
-    @_select_invitation
+    @select_invitation
     async def on_accept_invitation(callback: CallbackQuery, widget, manager: DialogManager):
         if manager.dialog_data["dialog_args"].can_accept is False:
             return
@@ -82,7 +64,7 @@ class Events:
         )
 
     @staticmethod
-    @_select_invitation
+    @select_invitation
     async def on_reject_invitation(callback: CallbackQuery, widget, manager: DialogManager):
         invitation: IncomingInvitationInfo = manager.dialog_data["selected_item"]
         room_name: str = invitation.room_name
@@ -128,7 +110,6 @@ class Events:
 async def invitations_getter(dialog_manager: DialogManager, **kwargs):
     invitations = dialog_manager.dialog_data["invitations"]
     return {
-        "invitation_count": len(invitations),
         "invitations": invitations,
     }
 
@@ -146,18 +127,11 @@ incoming_invitations_dialog = Dialog(
                     items="invitations",
                 ),
             },
-            selector=lambda data, widget, manager: data["invitation_count"] == 0,
+            selector=lambda data, widget, manager: len(data["invitations"]) == 0,
         ),
         Row(
             Cancel(Const("Back")),
         ),
-        # Row(
-        #     SwitchTo(
-        #         Const(InvitationsWindowConsts.INVITE_BUTTON_TEXT),
-        #         id=InvitationsWindowConsts.INVITE_BUTTON_ID,
-        #         state=InvitationsSG.invite,
-        #     ),
-        # ),
         ListGroup(
             Row(
                 Button(

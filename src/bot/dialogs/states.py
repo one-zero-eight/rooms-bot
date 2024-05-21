@@ -17,12 +17,15 @@ class RoomSG(StatesGroup):
 
 class IncomingInvitationsSG(StatesGroup):
     list = State()
-    delete = State()
-    accept = State()
 
 
 class ConfirmationSG(StatesGroup):
     main = State()
 
 
-__all__ = ["CreateRoomSG", "RoomlessSG", "RoomSG", "IncomingInvitationsSG", "ConfirmationSG"]
+class OutgoingInvitationsSG(StatesGroup):
+    list = State()
+    invite = State()
+
+
+__all__ = ["CreateRoomSG", "RoomlessSG", "RoomSG", "IncomingInvitationsSG", "ConfirmationSG", "OutgoingInvitationsSG"]
