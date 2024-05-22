@@ -3,16 +3,6 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class TaskDailyInfo(BaseModel):
-    id: int
-    name: str
-    today_user_id: int | None
-
-
-class DailyInfoResponse(BaseModel):
-    tasks: list[TaskDailyInfo]
-
-
 class UserInfo(BaseModel):
     alias: str | None
     fullname: str | None
@@ -26,6 +16,16 @@ class UserInfo(BaseModel):
     @property
     def repr(self) -> str:
         return self.fullname + (f" (@{self.alias})" if self.alias is not None else "")
+
+
+class TaskDailyInfo(BaseModel):
+    id: int
+    name: str
+    today_executor: UserInfo | None
+
+
+class DailyInfoResponse(BaseModel):
+    tasks: list[TaskDailyInfo]
 
 
 class IncomingInvitationInfo(BaseModel):
@@ -76,4 +76,4 @@ class SentInvitationsResponse(BaseModel):
 
 
 class OrderInfoResponse(BaseModel):
-    users: list[int]
+    users: list[UserInfo]

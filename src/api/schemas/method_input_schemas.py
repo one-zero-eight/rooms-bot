@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 
 
 class CreateUserBody(BaseModel):
@@ -29,6 +29,10 @@ class CreateTaskBody(BaseModel):
     start_date: datetime
     period: int = Field(gt=0, description="period in days")
     order_id: int | None = None
+
+    @field_serializer("start_date")
+    def datetime_to_iso(self, start_date: datetime) -> str:
+        return start_date.isoformat()
 
 
 class ModifyTaskBody(BaseModel):

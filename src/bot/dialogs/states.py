@@ -13,6 +13,7 @@ class RoomSG(StatesGroup):
     main = State()
     roommates = State()
     invitations = State()
+    tasks = State()
 
 
 class IncomingInvitationsSG(StatesGroup):
@@ -28,4 +29,16 @@ class OutgoingInvitationsSG(StatesGroup):
     invite = State()
 
 
-__all__ = ["CreateRoomSG", "RoomlessSG", "RoomSG", "IncomingInvitationsSG", "ConfirmationSG", "OutgoingInvitationsSG"]
+class TaskViewSG(StatesGroup):
+    main = State()
+
+
+__all__ = [
+    "CreateRoomSG",
+    "RoomlessSG",
+    "RoomSG",
+    "IncomingInvitationsSG",
+    "ConfirmationSG",
+    "OutgoingInvitationsSG",
+    "TaskViewSG",
+]

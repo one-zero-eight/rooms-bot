@@ -32,9 +32,15 @@ class IncomingInvitationDialogStartData:
     can_accept: bool
 
 
+@dataclass
+class TaskViewDialogStartData:
+    task_id: int
+
+
 __all__ = [
     "CreateRoomDialogResult",
     "RoomDialogStartData",
     "ConfirmationDialogStartData",
     "IncomingInvitationDialogStartData",
+    "TaskViewDialogStartData",
 ]

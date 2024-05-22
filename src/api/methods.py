@@ -11,6 +11,7 @@ from src.api.schemas.method_output_schemas import (
     TaskInfoResponse,
     SentInvitationInfo,
     Task,
+    OrderInfoResponse,
 )
 
 
@@ -92,8 +93,8 @@ class InNoHassleMusicRoomAPI:
     async def reject_invitation(self, id_: int, user_id: int) -> bool:
         return await self._post("/bot/invitation/reject", user_id, invitation={"id": id_})
 
-    async def get_order_info(self, id_: int, user_id: int) -> list[int]:
-        return (await self._post("/bot/order/info", user_id, order={"id": id_}))["users"]
+    async def get_order_info(self, id_: int, user_id: int) -> OrderInfoResponse:
+        return OrderInfoResponse.model_validate(await self._post("/bot/order/info", user_id, order={"id": id_}))
 
     async def save_user_alias(self, alias: str, user_id: int) -> bool:
         return await self._post("/bot/user/save_alias", user_id, alias=alias)
