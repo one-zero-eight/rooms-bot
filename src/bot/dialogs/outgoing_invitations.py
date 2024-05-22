@@ -11,7 +11,7 @@ from src.api import client
 from src.api.schemas.method_output_schemas import SentInvitationInfo
 from src.bot.dialogs.communication import ConfirmationDialogStartData
 from src.bot.dialogs.states import OutgoingInvitationsSG, ConfirmationSG
-from src.bot.utils import select_invitation
+from src.bot.utils import list_group_finder
 
 
 class InvitationsWindowConsts:
@@ -48,10 +48,12 @@ class Events:
         await Loader.load_invitations(manager)
 
     @staticmethod
-    @select_invitation
-    async def on_delete_invitation(callback: CallbackQuery, widget, manager: DialogManager):
-        invitation: SentInvitationInfo = manager.dialog_data["selected_item"]
+    @list_group_finder("invitations")
+    async def on_delete_invitation(
+        callback: CallbackQuery, widget, manager: DialogManager, invitation: SentInvitationInfo
+    ):
         addressee: str = invitation.addressee
+        manager.dialog_data["selected_item"] = invitation
 
         await manager.start(
             ConfirmationSG.main,
@@ -89,9 +91,9 @@ class Events:
             await manager.show(ShowMode.SEND)
             return
 
-        invitation: SentInvitationInfo = manager.dialog_data["selected_item"]
         user_id = manager.event.from_user.id
         if start_data["intent"] == "delete":
+            invitation: SentInvitationInfo = manager.dialog_data["selected_item"]
             await client.delete_invitation(invitation.id, user_id)
             await Loader.load_invitations(manager)
             await manager.show(ShowMode.SEND)

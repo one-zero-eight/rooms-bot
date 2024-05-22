@@ -13,7 +13,7 @@ from src.bot.dialogs.communication import (
     IncomingInvitationDialogStartData,
 )
 from src.bot.dialogs.states import IncomingInvitationsSG, ConfirmationSG, RoomSG
-from src.bot.utils import select_invitation
+from src.bot.utils import list_group_finder
 
 
 class InvitationsWindowConsts:
@@ -41,13 +41,15 @@ class Events:
         await Loader.load_invitations(manager)
 
     @staticmethod
-    @select_invitation
-    async def on_accept_invitation(callback: CallbackQuery, widget, manager: DialogManager):
+    @list_group_finder("invitations")
+    async def on_accept_invitation(
+        callback: CallbackQuery, widget, manager: DialogManager, invitation: IncomingInvitationInfo
+    ):
         if manager.dialog_data["dialog_args"].can_accept is False:
             return
 
-        invitation: IncomingInvitationInfo = manager.dialog_data["selected_item"]
         room_name: str = invitation.room_name
+        manager.dialog_data["selected_item"] = invitation
 
         await manager.start(
             ConfirmationSG.main,
@@ -64,10 +66,12 @@ class Events:
         )
 
     @staticmethod
-    @select_invitation
-    async def on_reject_invitation(callback: CallbackQuery, widget, manager: DialogManager):
-        invitation: IncomingInvitationInfo = manager.dialog_data["selected_item"]
+    @list_group_finder("invitations")
+    async def on_reject_invitation(
+        callback: CallbackQuery, widget, manager: DialogManager, invitation: IncomingInvitationInfo
+    ):
         room_name: str = invitation.room_name
+        manager.dialog_data["selected_item"] = invitation
 
         await manager.start(
             ConfirmationSG.main,

@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Awaitable, Callable, Any
 
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, Window, DialogManager, ShowMode, StartMode
@@ -84,20 +85,19 @@ class Events:
 
 class Loader:
     @staticmethod
-    def show_decorator(func):
-        async def wrapper(callback: CallbackQuery, button: Button, manager: DialogManager):
+    def show_decorator(func: Callable[[CallbackQuery, Any, DialogManager], Awaitable]):
+        async def wrapper(callback: CallbackQuery, button: Any, manager: DialogManager):
             await func(callback, button, manager)
             await manager.show()
 
         return wrapper
 
     @staticmethod
-    async def daily_info_callback(callback: CallbackQuery, button: Button, manager: DialogManager):
-        await Loader.load_daily_info(manager)
+    def load_callback(func: Callable[[DialogManager], Awaitable]):
+        async def wrapper(callback: CallbackQuery, button: Any, manager: DialogManager):
+            await func(manager)
 
-    @staticmethod
-    async def roommates_callback(callback: CallbackQuery, button: Button, manager: DialogManager):
-        await Loader.load_roommates(manager)
+        return wrapper
 
     @staticmethod
     async def load_daily_info(manager: DialogManager):
@@ -118,7 +118,7 @@ room_dialog = Dialog(
             Button(
                 Const("Refresh"),
                 MainWindowConsts.REFRESH_BUTTON_ID,
-                on_click=Loader.show_decorator(Loader.daily_info_callback),
+                on_click=Loader.show_decorator(Loader.load_callback(Loader.load_daily_info)),
             ),
         ),
         Row(
@@ -126,7 +126,7 @@ room_dialog = Dialog(
                 Const("Roommates"),
                 MainWindowConsts.ROOMMATES_BUTTON_ID,
                 RoomSG.roommates,
-                on_click=Loader.roommates_callback,
+                on_click=Loader.load_callback(Loader.load_roommates),
             ),
             Button(Const("Tasks"), MainWindowConsts.TASKS_BUTTON_ID),
         ),
@@ -163,7 +163,7 @@ room_dialog = Dialog(
             Const("Back"),
             RoommatesWindowConsts.BACK_BUTTON_ID,
             RoomSG.main,
-            on_click=Loader.daily_info_callback,
+            on_click=Loader.load_callback(Loader.load_daily_info),
         ),
         state=RoomSG.roommates,
         getter=getter,
