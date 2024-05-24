@@ -101,3 +101,12 @@ class InNoHassleMusicRoomAPI:
 
     async def save_user_fullname(self, fullname: str, user_id: int) -> bool:
         return await self._post("/bot/user/save_fullname", user_id, fullname=fullname)
+
+    async def delete_task(self, task_id: int, user_id: int) -> bool:
+        return await self._post("/bot/task/delete", user_id, task_id=task_id)
+
+    async def delete_order(self, order_id: int, user_id: int) -> bool:
+        return await self._post("/bot/order/delete", user_id, order_id=order_id)
+
+    async def is_order_in_use(self, order_id: int, user_id: int) -> bool:
+        return await self._post("/bot/order/is_in_use", user_id, order_id=order_id)
