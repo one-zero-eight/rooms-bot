@@ -3,7 +3,7 @@ from aiogram_dialog import Dialog, Window, DialogManager, ShowMode
 from aiogram_dialog.widgets.kbd import Row, Select
 from aiogram_dialog.widgets.text import Format
 
-from src.bot.dialogs.communication import ConfirmationDialogStartData
+from src.bot.dialogs.dialog_communications import ConfirmationDialogStartData
 from src.bot.dialogs.states import ConfirmationSG
 
 

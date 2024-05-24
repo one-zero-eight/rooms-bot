@@ -9,7 +9,7 @@ from aiogram_dialog.widgets.text import Const, Format, List, Case
 
 from src.api import client
 from src.api.schemas.method_output_schemas import SentInvitationInfo
-from src.bot.dialogs.communication import ConfirmationDialogStartData
+from src.bot.dialogs.dialog_communications import ConfirmationDialogStartData
 from src.bot.dialogs.states import OutgoingInvitationsSG, ConfirmationSG
 from src.bot.utils import list_group_finder
 

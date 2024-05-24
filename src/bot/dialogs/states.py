@@ -1,8 +1,8 @@
 from aiogram.fsm.state import StatesGroup, State
 
 
-class CreateRoomSG(StatesGroup):
-    enter_name = State()
+class PromptSG(StatesGroup):
+    main = State()
 
 
 class RoomlessSG(StatesGroup):
@@ -34,7 +34,7 @@ class TaskViewSG(StatesGroup):
 
 
 __all__ = [
-    "CreateRoomSG",
+    "PromptSG",
     "RoomlessSG",
     "RoomSG",
     "IncomingInvitationsSG",

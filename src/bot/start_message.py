@@ -4,7 +4,7 @@ from aiogram.types import Message
 from aiogram_dialog import DialogManager, StartMode
 
 from src.api import client
-from src.bot.dialogs.communication import RoomDialogStartData
+from src.bot.dialogs.dialog_communications import RoomDialogStartData
 from src.bot.dialogs.states import RoomlessSG, RoomSG
 
 

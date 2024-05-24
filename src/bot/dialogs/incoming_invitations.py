@@ -7,7 +7,7 @@ from aiogram_dialog.widgets.text import Const, Format, List, Case
 
 from src.api import client
 from src.api.schemas.method_output_schemas import IncomingInvitationInfo
-from src.bot.dialogs.communication import (
+from src.bot.dialogs.dialog_communications import (
     ConfirmationDialogStartData,
     RoomDialogStartData,
     IncomingInvitationDialogStartData,

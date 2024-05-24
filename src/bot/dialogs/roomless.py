@@ -6,8 +6,12 @@ from aiogram_dialog.widgets.kbd import Row, Button, Start
 from aiogram_dialog.widgets.text import Const
 
 from src.api import client
-from src.bot.dialogs.communication import CreateRoomDialogResult, RoomDialogStartData, IncomingInvitationDialogStartData
-from src.bot.dialogs.states import RoomlessSG, CreateRoomSG, RoomSG, IncomingInvitationsSG
+from src.bot.dialogs.dialog_communications import (
+    RoomDialogStartData,
+    IncomingInvitationDialogStartData,
+    PromptDialogStartData,
+)
+from src.bot.dialogs.states import RoomlessSG, PromptSG, RoomSG, IncomingInvitationsSG
 
 
 class WelcomeWindowConsts:
@@ -22,22 +26,29 @@ You can:
 
 class Events:
     @staticmethod
-    async def process_create_room_result(start_data: Data, result: CreateRoomDialogResult, manager: DialogManager):
+    async def on_process_result(start_data: Data, result: str | None, manager: DialogManager):
         if not isinstance(start_data, dict):
             return
 
         if start_data["intent"] == "create_room":
-            if result.created:
-                room_id = await client.create_room(result.name, manager.event.from_user.id)
+            if result is not None:
+                room_id = await client.create_room(result, manager.event.from_user.id)
                 await manager.start(
                     RoomSG.main,
-                    data={"input": dataclasses.asdict(RoomDialogStartData(room_id, result.name))},
+                    data={"input": dataclasses.asdict(RoomDialogStartData(room_id, result))},
                     mode=StartMode.RESET_STACK,
                 )
+            else:
+                await manager.show(ShowMode.SEND)
+            return
 
     @staticmethod
     async def on_click_create_room(event: CallbackQuery, button: Button, dialog_manager: DialogManager):
-        await dialog_manager.start(CreateRoomSG.enter_name, data={"intent": "create_room"}, show_mode=ShowMode.SEND)
+        await dialog_manager.start(
+            PromptSG.main,
+            data={"intent": "create_room", "input": dataclasses.asdict(PromptDialogStartData("a room's name"))},
+            show_mode=ShowMode.SEND,
+        )
 
 
 roomless_dialog = Dialog(
@@ -62,5 +73,5 @@ roomless_dialog = Dialog(
         ),
         state=RoomlessSG.welcome,
     ),
-    on_process_result=Events.process_create_room_result,
+    on_process_result=Events.on_process_result,
 )

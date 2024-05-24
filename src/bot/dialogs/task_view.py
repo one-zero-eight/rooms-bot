@@ -7,7 +7,7 @@ from aiogram_dialog.widgets.text import Format, Const, List, Multi
 
 from src.api import client
 from src.api.schemas.method_output_schemas import UserInfo, TaskInfoResponse
-from src.bot.dialogs.communication import TaskViewDialogStartData
+from src.bot.dialogs.dialog_communications import TaskViewDialogStartData
 from src.bot.dialogs.states import TaskViewSG
 
 
