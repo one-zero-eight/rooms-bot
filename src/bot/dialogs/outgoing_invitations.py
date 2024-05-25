@@ -1,4 +1,3 @@
-import dataclasses
 import re
 
 from aiogram.types import CallbackQuery, Message
@@ -59,12 +58,7 @@ class Events:
             ConfirmationSG.main,
             data={
                 "intent": "delete",
-                "input": dataclasses.asdict(
-                    ConfirmationDialogStartData(
-                        f"you want to delete the invitation to @{addressee}",
-                        "Deleted",
-                    )
-                ),
+                "input": ConfirmationDialogStartData(f"you want to delete the invitation to @{addressee}", "Deleted"),
             },
             show_mode=ShowMode.SEND,
         )

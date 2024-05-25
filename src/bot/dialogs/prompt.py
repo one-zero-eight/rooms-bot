@@ -11,7 +11,7 @@ from src.bot.dialogs.states import PromptSG
 class Events:
     @staticmethod
     async def on_start(start_data: dict, manager: DialogManager):
-        args = PromptDialogStartData(**start_data["input"])
+        args: PromptDialogStartData = start_data["input"]
         manager.dialog_data["args"] = args
 
     @staticmethod

@@ -81,7 +81,8 @@ async def getter(dialog_manager: DialogManager, **kwargs):
 class Events:
     @staticmethod
     async def on_start(start_data: dict, manager: DialogManager):
-        manager.dialog_data["room_info"] = RoomDialogStartData(**start_data["input"])
+        args: RoomDialogStartData = start_data["input"]
+        manager.dialog_data["room_info"] = args
         await Loader.load_daily_info(manager)
 
     @staticmethod
@@ -91,11 +92,8 @@ class Events:
             ConfirmationSG.main,
             data={
                 "intent": "leave",
-                "input": dataclasses.asdict(
-                    ConfirmationDialogStartData(
-                        "you want to leave the room",
-                        f'You have left the room "{room_name}"',
-                    )
+                "input": ConfirmationDialogStartData(
+                    "you want to leave the room", f'You have left the room "{room_name}"'
                 ),
             },
             show_mode=ShowMode.SEND,
@@ -126,7 +124,7 @@ class Events:
             TaskViewSG.main,
             data={
                 "intent": "view",
-                "input": dataclasses.asdict(TaskViewDialogStartData(task.id)),
+                "input": TaskViewDialogStartData(task.id),
             },
         )
 
@@ -195,7 +193,7 @@ room_dialog = Dialog(
                 state=IncomingInvitationsSG.list,
                 data={
                     "intent": "inbox",
-                    "input": dataclasses.asdict(IncomingInvitationDialogStartData(False)),
+                    "input": IncomingInvitationDialogStartData(False),
                 },
             ),
             Start(

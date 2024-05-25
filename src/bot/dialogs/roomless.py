@@ -1,5 +1,3 @@
-import dataclasses
-
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Window, Dialog, DialogManager, Data, ShowMode, StartMode
 from aiogram_dialog.widgets.kbd import Row, Button, Start
@@ -35,7 +33,7 @@ class Events:
                 room_id = await client.create_room(result, manager.event.from_user.id)
                 await manager.start(
                     RoomSG.main,
-                    data={"input": dataclasses.asdict(RoomDialogStartData(room_id, result))},
+                    data={"input": RoomDialogStartData(room_id, result)},
                     mode=StartMode.RESET_STACK,
                 )
             else:
@@ -46,7 +44,7 @@ class Events:
     async def on_click_create_room(event: CallbackQuery, button: Button, dialog_manager: DialogManager):
         await dialog_manager.start(
             PromptSG.main,
-            data={"intent": "create_room", "input": dataclasses.asdict(PromptDialogStartData("a room's name"))},
+            data={"intent": "create_room", "input": PromptDialogStartData("a room's name")},
             show_mode=ShowMode.SEND,
         )
 
@@ -62,7 +60,7 @@ roomless_dialog = Dialog(
                 state=IncomingInvitationsSG.list,
                 data={
                     "intent": "invitations",
-                    "input": dataclasses.asdict(IncomingInvitationDialogStartData(True)),
+                    "input": IncomingInvitationDialogStartData(True),
                 },
             ),
             Button(

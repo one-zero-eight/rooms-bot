@@ -54,7 +54,8 @@ class Loader:
 class Events:
     @staticmethod
     async def on_start(start_data: dict, manager: DialogManager):
-        task_id = TaskViewDialogStartData(**start_data["input"]).task_id
+        args: TaskViewDialogStartData = start_data["input"]
+        task_id = args.task_id
         manager.dialog_data["task_id"] = task_id
         await Loader.load_task_info(manager)
 

@@ -1,5 +1,3 @@
-import dataclasses
-
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, Window, DialogManager, ShowMode, StartMode
 from aiogram_dialog.widgets.kbd import Row, Cancel, ListGroup, Button
@@ -37,7 +35,8 @@ class Loader:
 class Events:
     @staticmethod
     async def on_start(start_data: dict, manager: DialogManager):
-        manager.dialog_data["dialog_args"] = IncomingInvitationDialogStartData(**start_data["input"])
+        args: IncomingInvitationDialogStartData = start_data["input"]
+        manager.dialog_data["dialog_args"] = args
         await Loader.load_invitations(manager)
 
     @staticmethod
@@ -55,12 +54,7 @@ class Events:
             ConfirmationSG.main,
             data={
                 "intent": "accept",
-                "input": dataclasses.asdict(
-                    ConfirmationDialogStartData(
-                        f"you want to accept the invitation to {room_name}",
-                        "Accepted",
-                    )
-                ),
+                "input": ConfirmationDialogStartData(f"you want to accept the invitation to {room_name}", "Accepted"),
             },
             show_mode=ShowMode.SEND,
         )
@@ -77,12 +71,7 @@ class Events:
             ConfirmationSG.main,
             data={
                 "intent": "reject",
-                "input": dataclasses.asdict(
-                    ConfirmationDialogStartData(
-                        f"you want to reject the invitation to {room_name}",
-                        "Rejected",
-                    )
-                ),
+                "input": ConfirmationDialogStartData(f"you want to reject the invitation to {room_name}", "Rejected"),
             },
             show_mode=ShowMode.SEND,
         )
@@ -101,7 +90,7 @@ class Events:
             await client.accept_invitation(invitation.id, user_id)
             await manager.start(
                 RoomSG.main,
-                data={"input": dataclasses.asdict(RoomDialogStartData(invitation.room, invitation.room_name))},
+                data={"input": RoomDialogStartData(invitation.room, invitation.room_name)},
                 mode=StartMode.RESET_STACK,
                 show_mode=ShowMode.SEND,
             )

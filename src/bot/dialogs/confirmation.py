@@ -8,7 +8,8 @@ from src.bot.dialogs.states import ConfirmationSG
 
 
 async def on_start(start_data: dict, manager: DialogManager):
-    manager.dialog_data["confirmation"] = ConfirmationDialogStartData(**start_data["input"])
+    args: ConfirmationDialogStartData = start_data["input"]
+    manager.dialog_data["confirmation"] = args
 
 
 async def getter(dialog_manager: DialogManager, **kwargs):
