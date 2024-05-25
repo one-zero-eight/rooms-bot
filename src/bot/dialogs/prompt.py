@@ -22,7 +22,6 @@ class Events:
     @staticmethod
     async def on_input(message: Message, widget, manager: DialogManager, text: str):
         if not manager.dialog_data["args"].validate(text):
-            await manager.show(ShowMode.SEND)
             return
         await manager.done(text, show_mode=ShowMode.NO_UPDATE)
 

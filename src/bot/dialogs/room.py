@@ -117,13 +117,17 @@ class Events:
                 show_mode=ShowMode.SEND,
             )
 
+        if start_data["intent"] == "view_task":
+            await Loader.load_tasks(manager)
+            await manager.show()
+
     @staticmethod
     @select_finder("tasks")
     async def on_select_task(callback: CallbackQuery, widget, manager: DialogManager, task: TaskRepresentation):
         await manager.start(
             TaskViewSG.main,
             data={
-                "intent": "view",
+                "intent": "view_task",
                 "input": TaskViewDialogStartData(task.id),
             },
         )
