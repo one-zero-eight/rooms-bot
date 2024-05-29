@@ -8,14 +8,14 @@ from aiogram_dialog.widgets.kbd import Cancel, Row, Button
 from aiogram_dialog.widgets.text import Format, Const, List, Multi
 
 from src.api import client
-from src.api.schemas.method_input_schemas import ModifyTaskBody
+from src.api.schemas.method_input_schemas import ModifyTaskBody, RemoveTaskParametersBody
 from src.api.schemas.method_output_schemas import UserInfo, TaskInfoResponse
 from src.bot.dialogs.dialog_communications import (
     TaskViewDialogStartData,
     ConfirmationDialogStartData,
     PromptDialogStartData,
 )
-from src.bot.dialogs.states import TaskViewSG, ConfirmationSG, PromptSG
+from src.bot.dialogs.states import TaskViewSG, ConfirmationSG, PromptSG, OrderSelectionSG
 
 
 class MainWindowConsts:
@@ -133,7 +133,13 @@ class Events:
         )
 
     @staticmethod
-    async def on_process_result(start_data: dict, result: bool | str | None, manager: DialogManager):
+    async def on_edit_order(callback: CallbackQuery, widget, manager: DialogManager):
+        await manager.start(OrderSelectionSG.select, data={"intent": "edit_order"})
+
+    @staticmethod
+    async def on_process_result(
+        start_data: dict, result: bool | str | tuple[bool, int | None] | None, manager: DialogManager
+    ):
         if not isinstance(start_data, dict):
             return
 
@@ -144,23 +150,35 @@ class Events:
                 await client.delete_task(task_id, user_id)
                 await manager.done(show_mode=ShowMode.SEND)
                 return
+            await manager.show(ShowMode.SEND)
         elif start_data["intent"] == "edit_name":
             if result is not None:
                 await client.modify_task(ModifyTaskBody(id=task_id, name=result), user_id)
                 await Loader.load_task_info(manager)
+            await manager.show(ShowMode.SEND)
         elif start_data["intent"] == "edit_description":
             if result is not None:
                 await client.modify_task(ModifyTaskBody(id=task_id, description=result), user_id)
                 await Loader.load_task_info(manager)
+            await manager.show(ShowMode.SEND)
         elif start_data["intent"] == "edit_start_date":
             if result is not None:
                 await client.modify_task(ModifyTaskBody(id=task_id, start_date=parse_datetime(result)), user_id)
                 await Loader.load_task_info(manager)
+            await manager.show(ShowMode.SEND)
         elif start_data["intent"] == "edit_period":
             if result is not None:
                 await client.modify_task(ModifyTaskBody(id=task_id, period=result), user_id)
                 await Loader.load_task_info(manager)
-        await manager.show(ShowMode.SEND)
+            await manager.show(ShowMode.SEND)
+        elif start_data["intent"] == "edit_order":
+            if result[0]:
+                if result[1] is None:
+                    await client.remove_task_parameters(RemoveTaskParametersBody(id=task_id, order_id=True), user_id)
+                else:
+                    await client.modify_task(ModifyTaskBody(id=task_id, order_id=result[1]), user_id)
+                await Loader.load_task_info(manager)
+                await manager.show(ShowMode.EDIT)
 
 
 def parse_datetime(text: str) -> datetime:
@@ -222,6 +240,7 @@ task_view_dialog = Dialog(
             Button(
                 Const("Edit order"),
                 id=MainWindowConsts.EDIT_ORDER_BUTTON_ID,
+                on_click=Events.on_edit_order,
             ),
         ),
         Cancel(Const("Back"), MainWindowConsts.BACK_BUTTON_ID),

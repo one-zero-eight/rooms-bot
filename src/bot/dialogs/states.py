@@ -33,6 +33,10 @@ class TaskViewSG(StatesGroup):
     main = State()
 
 
+class OrderSelectionSG(StatesGroup):
+    select = State()
+
+
 __all__ = [
     "PromptSG",
     "RoomlessSG",
@@ -41,4 +45,5 @@ __all__ = [
     "ConfirmationSG",
     "OutgoingInvitationsSG",
     "TaskViewSG",
+    "OrderSelectionSG",
 ]

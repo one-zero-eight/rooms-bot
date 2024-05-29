@@ -1,3 +1,4 @@
+from src.bot.dialogs.order_selection import select_order_dialog
 from src.bot.dialogs.roomless import roomless_dialog
 from src.bot.dialogs.prompt import prompt_dialog
 from src.bot.dialogs.room import room_dialog
@@ -14,6 +15,7 @@ dialogs = [
     confirmation_dialog,
     outgoing_invitations_dialog,
     task_view_dialog,
+    select_order_dialog,
 ]
 
 __all__ = [
@@ -25,4 +27,5 @@ __all__ = [
     "outgoing_invitations_dialog",
     "incoming_invitations_dialog",
     "task_view_dialog",
+    "select_order_dialog",
 ]
