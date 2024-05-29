@@ -10,8 +10,9 @@ from src.api.schemas.method_output_schemas import (
     RoomInfoResponse,
     TaskInfoResponse,
     SentInvitationInfo,
-    Task,
+    TaskInfo,
     OrderInfoResponse,
+    ListOfOrdersResponse,
 )
 
 
@@ -75,8 +76,8 @@ class InNoHassleMusicRoomAPI:
     async def leave_room(self, user_id: int) -> bool:
         return await self._post("/bot/room/leave", user_id)
 
-    async def get_tasks(self, user_id: int) -> list[Task]:
-        return [Task.model_validate(obj) for obj in (await self._post("/bot/task/list", user_id))["tasks"]]
+    async def get_tasks(self, user_id: int) -> list[TaskInfo]:
+        return [TaskInfo.model_validate(obj) for obj in (await self._post("/bot/task/list", user_id))["tasks"]]
 
     async def get_task_info(self, id_: int, user_id: int) -> TaskInfoResponse:
         return TaskInfoResponse.model_validate(await self._post("/bot/task/info", user_id, task={"id": id_}))
@@ -110,3 +111,6 @@ class InNoHassleMusicRoomAPI:
 
     async def is_order_in_use(self, order_id: int, user_id: int) -> bool:
         return await self._post("/bot/order/is_in_use", user_id, order_id=order_id)
+
+    async def list_of_orders(self, user_id: int) -> ListOfOrdersResponse:
+        return ListOfOrdersResponse.model_validate(await self._post("/bot/room/list_of_orders", user_id))

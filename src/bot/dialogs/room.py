@@ -7,7 +7,7 @@ from aiogram_dialog.widgets.kbd import Row, Button, SwitchTo, Start, Select, Gro
 from aiogram_dialog.widgets.text import Format, Const, List
 
 from src.api import client
-from src.api.schemas.method_output_schemas import DailyInfoResponse, UserInfo, Task
+from src.api.schemas.method_output_schemas import DailyInfoResponse, UserInfo, TaskInfo
 from src.bot.dialogs.dialog_communications import (
     RoomDialogStartData,
     ConfirmationDialogStartData,
@@ -60,7 +60,7 @@ async def getter(dialog_manager: DialogManager, **kwargs):
     room_info: RoomDialogStartData = dialog_manager.dialog_data["room_info"]
     daily_info: DailyInfoResponse = dialog_manager.dialog_data["daily_info"]
     roommates: list[UserInfo] = dialog_manager.dialog_data.get("roommates", [])
-    task_data: list[Task] = dialog_manager.dialog_data.get("tasks", [])
+    task_data: list[TaskInfo] = dialog_manager.dialog_data.get("tasks", [])
     tasks = [
         TaskRepresentation(
             t.id,
