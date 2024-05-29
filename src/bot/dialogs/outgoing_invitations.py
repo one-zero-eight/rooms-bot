@@ -128,7 +128,7 @@ outgoing_invitations_dialog = Dialog(
         ListGroup(
             Row(
                 Button(
-                    Format("{pos}. {item.room_name}"),
+                    Format("{pos}. {item.addressee}"),
                     id=InvitationsWindowConsts.ROOM_NAME_BUTTON_ID,
                 ),
                 Button(
@@ -139,7 +139,7 @@ outgoing_invitations_dialog = Dialog(
             ),
             id=InvitationsWindowConsts.INVITATIONS_LIST_ID,
             item_id_getter=lambda invitation: invitation.id,
-            items=lambda data: data["invitations"],
+            items="invitations",
         ),
         state=OutgoingInvitationsSG.list,
         getter=invitations_getter,
