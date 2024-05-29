@@ -3,6 +3,7 @@ import aiohttp
 from src.api.schemas.method_input_schemas import (
     CreateTaskBody,
     ModifyTaskBody,
+    RemoveTaskParametersBody,
 )
 from src.api.schemas.method_output_schemas import (
     DailyInfoResponse,
@@ -60,6 +61,9 @@ class InNoHassleMusicRoomAPI:
 
     async def modify_task(self, body: ModifyTaskBody, user_id: int) -> bool:
         return await self._post("/bot/task/modify", user_id, task=body.model_dump())
+
+    async def remove_task_parameters(self, body: RemoveTaskParametersBody, user_id: int) -> bool:
+        return await self._post("/bot/task/remove_parameters", user_id, task=body.model_dump())
 
     async def get_daily_info(self, user_id: int) -> DailyInfoResponse:
         return DailyInfoResponse.model_validate(await self._post("/bot/room/daily_info", user_id))
