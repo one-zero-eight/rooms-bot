@@ -1,4 +1,5 @@
 import dataclasses
+from dataclasses import asdict
 from typing import Awaitable, Callable, Any
 
 from aiogram.types import CallbackQuery
@@ -7,12 +8,15 @@ from aiogram_dialog.widgets.kbd import Row, Button, SwitchTo, Start, Select, Gro
 from aiogram_dialog.widgets.text import Format, Const, List
 
 from src.api import client
+from src.api.schemas.method_input_schemas import CreateTaskBody
 from src.api.schemas.method_output_schemas import DailyInfoResponse, UserInfo, TaskInfo
 from src.bot.dialogs.dialog_communications import (
     RoomDialogStartData,
     ConfirmationDialogStartData,
     IncomingInvitationDialogStartData,
     TaskViewDialogStartData,
+    CreateTaskDialogStartData,
+    CreateTaskForm,
 )
 from src.bot.dialogs.states import (
     RoomSG,
@@ -21,6 +25,7 @@ from src.bot.dialogs.states import (
     IncomingInvitationsSG,
     OutgoingInvitationsSG,
     TaskViewSG,
+    CreateTaskSG,
 )
 from src.bot.utils import select_finder
 
@@ -100,7 +105,9 @@ class Events:
         )
 
     @staticmethod
-    async def on_process_result(start_data: dict, result: bool | None, manager: DialogManager):
+    async def on_process_result(
+        start_data: dict, result: bool | tuple[bool, CreateTaskForm] | None, manager: DialogManager
+    ):
         if not isinstance(start_data, dict):
             return
 
@@ -121,6 +128,14 @@ class Events:
             await Loader.load_tasks(manager)
             await manager.show()
 
+        if start_data["intent"] == "create_task":
+            if not result[0]:
+                return
+            form: CreateTaskForm = result[1]
+            await client.create_task(CreateTaskBody(**asdict(form)), manager.event.from_user.id)
+            await Loader.load_tasks(manager)
+            await manager.show()
+
     @staticmethod
     @select_finder("tasks")
     async def on_select_task(callback: CallbackQuery, widget, manager: DialogManager, task: TaskRepresentation):
@@ -130,6 +145,17 @@ class Events:
                 "intent": "view_task",
                 "input": TaskViewDialogStartData(task.id),
             },
+        )
+
+    @staticmethod
+    async def on_create_task(callback: CallbackQuery, widget, manager: DialogManager):
+        await manager.start(
+            data={
+                "intent": "create_task",
+                "input": CreateTaskDialogStartData(manager.dialog_data["room_info"].id),
+            },
+            state=CreateTaskSG.main,
+            show_mode=ShowMode.SEND,
         )
 
 
@@ -240,7 +266,7 @@ room_dialog = Dialog(
         Button(
             Const(TasksWindowConsts.NEW_TASK_BUTTON_TEXT),
             id=TasksWindowConsts.NEW_TASK_BUTTON_ID,
-            # state=NewTaskSG.enter_start_date,
+            on_click=Events.on_create_task,
         ),
         Group(
             Select(

@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Callable
 
 
@@ -55,10 +56,26 @@ class PromptDialogStartData:
         raise TypeError("Filter's type is incorrect")
 
 
+@dataclass
+class CreateTaskDialogStartData:
+    room_id: int
+
+
+@dataclass
+class CreateTaskForm:
+    name: str | None = None
+    description: str | None = None
+    start_date: datetime | None = None
+    period: int | None = None
+    order_id: str | None = None
+
+
 __all__ = [
     "RoomDialogStartData",
     "ConfirmationDialogStartData",
     "IncomingInvitationDialogStartData",
     "TaskViewDialogStartData",
     "PromptDialogStartData",
+    "CreateTaskDialogStartData",
+    "CreateTaskForm",
 ]
