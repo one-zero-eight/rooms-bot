@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Callable, Awaitable, Any, TypeVar
 
 from aiogram.types import CallbackQuery
@@ -72,3 +73,16 @@ def select_finder(
         return wrapped
 
     return decorator
+
+
+def parse_datetime(text: str) -> datetime:
+    return datetime.strptime(text, "%d.%m.%Y %H:%M")
+
+
+def datetime_validator(text: str) -> bool:
+    try:
+        parse_datetime(text)
+    except ValueError:
+        return False
+    else:
+        return True

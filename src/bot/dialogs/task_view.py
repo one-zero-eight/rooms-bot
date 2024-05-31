@@ -16,6 +16,7 @@ from src.bot.dialogs.dialog_communications import (
     PromptDialogStartData,
 )
 from src.bot.dialogs.states import TaskViewSG, ConfirmationSG, PromptSG, OrderSelectionSG
+from src.bot.utils import parse_datetime, datetime_validator
 
 
 class MainWindowConsts:
@@ -33,13 +34,6 @@ Period (in days): {task.period}"""
     @staticmethod
     def period_filter(s: str):
         return s.isdecimal() and int(s) > 0
-
-    @staticmethod
-    def start_date_filter(text: str) -> bool:
-        try:
-            parse_datetime(text)
-        except ValueError:
-            return False
 
     BACK_BUTTON_ID = "back_button"
     EDIT_NAME_BUTTON_ID = "edit_name_button"
@@ -122,7 +116,7 @@ class Events:
     async def on_edit_start_date(callback: CallbackQuery, widget, manager: DialogManager):
         await Events._prompt_string(
             "edit_start_date",
-            PromptDialogStartData("a new start date", filter=MainWindowConsts.start_date_filter),
+            PromptDialogStartData("a new start date", filter=datetime_validator),
             manager,
         )
 
@@ -179,10 +173,6 @@ class Events:
                     await client.modify_task(ModifyTaskBody(id=task_id, order_id=result[1]), user_id)
                 await Loader.load_task_info(manager)
                 await manager.show(ShowMode.EDIT)
-
-
-def parse_datetime(text: str) -> datetime:
-    return datetime.strptime(text, MainWindowConsts.DATE_FORMAT)
 
 
 async def getter(dialog_manager: DialogManager, **kwargs):
