@@ -41,6 +41,11 @@ class CreateTaskSG(StatesGroup):
     main = State()
 
 
+class CreateOrderSG(StatesGroup):
+    first = State()
+    multiple = State()
+
+
 __all__ = [
     "PromptSG",
     "RoomlessSG",
@@ -51,4 +56,5 @@ __all__ = [
     "TaskViewSG",
     "OrderSelectionSG",
     "CreateTaskSG",
+    "CreateOrderSG",
 ]

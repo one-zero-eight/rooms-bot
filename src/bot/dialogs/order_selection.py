@@ -3,12 +3,12 @@ from typing import Sequence
 
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, Window, DialogManager, ShowMode
-from aiogram_dialog.widgets.kbd import Select, Start, Group, Button
+from aiogram_dialog.widgets.kbd import Select, Group, Button
 from aiogram_dialog.widgets.text import Const, List, Format, Multi
 
 from src.api import client
 from src.api.schemas.method_output_schemas import ListOfOrdersResponse
-from src.bot.dialogs.states import OrderSelectionSG
+from src.bot.dialogs.states import OrderSelectionSG, CreateOrderSG
 
 
 class SelectionWindowConsts:
@@ -54,6 +54,22 @@ class Events:
     async def on_cancel(callback: CallbackQuery, widget, manager: DialogManager):
         await manager.done((False, None), show_mode=ShowMode.EDIT)
 
+    @staticmethod
+    async def on_create_order(callback: CallbackQuery, widget, manager: DialogManager):
+        await manager.start(
+            CreateOrderSG.first,
+            data={
+                "intent": "create_order",
+            },
+            show_mode=ShowMode.SEND,
+        )
+
+    @staticmethod
+    async def on_process_result(start_data: dict, result, manager: DialogManager):
+        if start_data["intent"] == "create_order":
+            if result:
+                await Loader.load_orders(manager)
+
 
 async def getter(dialog_manager: DialogManager, **kwargs):
     return {
@@ -98,10 +114,10 @@ select_order_dialog = Dialog(
             ),
             width=4,
         ),
-        Start(
+        Button(
             Const(SelectionWindowConsts.CREATE_NEW_BUTTON),
             id=SelectionWindowConsts.CREATE_NEW_BUTTON_ID,
-            state=...,
+            on_click=Events.on_create_order,
         ),
         Button(
             Const(SelectionWindowConsts.SELECT_NONE_BUTTON),
@@ -117,4 +133,5 @@ select_order_dialog = Dialog(
         getter=getter,
     ),
     on_start=Events.on_start,
+    on_process_result=Events.on_process_result,
 )

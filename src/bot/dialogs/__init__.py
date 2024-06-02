@@ -1,3 +1,4 @@
+from src.bot.dialogs.create_order import create_order_dialog
 from src.bot.dialogs.order_selection import select_order_dialog
 from src.bot.dialogs.roomless import roomless_dialog
 from src.bot.dialogs.prompt import prompt_dialog
@@ -18,6 +19,7 @@ dialogs = [
     task_view_dialog,
     select_order_dialog,
     create_task_dialog,
+    create_order_dialog,
 ]
 
 __all__ = [
@@ -31,4 +33,5 @@ __all__ = [
     "task_view_dialog",
     "select_order_dialog",
     "create_task_dialog",
+    "create_order_dialog",
 ]
