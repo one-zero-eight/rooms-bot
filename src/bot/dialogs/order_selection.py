@@ -34,7 +34,7 @@ class Loader:
     async def load_orders(manager: DialogManager):
         data: ListOfOrdersResponse = await client.list_of_orders(manager.event.from_user.id)
         manager.dialog_data["orders"] = [OrderRepresentation(k, v) for k, v in data.orders.items()]
-        manager.dialog_data["users"] = data.users
+        manager.dialog_data["users"] = {u.id: u for u in data.users}
 
 
 class Events:

@@ -4,11 +4,9 @@ from pydantic import BaseModel
 
 
 class UserInfo(BaseModel):
+    id: int
     alias: str | None
     fullname: str | None
-
-    def __init__(self, alias: str, fullname: str):
-        super().__init__(alias=alias, fullname=fullname)
 
     def empty(self) -> bool:
         return self.alias is None and self.fullname is None
@@ -80,5 +78,5 @@ class OrderInfoResponse(BaseModel):
 
 
 class ListOfOrdersResponse(BaseModel):
-    users: dict[int, UserInfo]
+    users: list[UserInfo]
     orders: dict[int, list[int]]
