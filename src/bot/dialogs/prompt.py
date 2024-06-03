@@ -25,12 +25,17 @@ class Events:
             return
         await manager.done(text, show_mode=ShowMode.NO_UPDATE)
 
+    @staticmethod
+    async def on_skip(message: Message, widget, manager: DialogManager):
+        await manager.done("", show_mode=ShowMode.NO_UPDATE)
+
 
 async def getter(dialog_manager: DialogManager, **kwargs):
     dialog_args: PromptDialogStartData = dialog_manager.dialog_data["args"]
     return {
         "message": dialog_args.prompt,
-        "cancel_button": dialog_args.cancel_button,
+        "cancel_button": dialog_args.cancel_button_text,
+        "skip_button": dialog_args.skip_button_text if dialog_args.can_skip else None,
     }
 
 
@@ -38,6 +43,7 @@ prompt_dialog = Dialog(
     Window(
         Format("{message}"),
         Button(Format("{cancel_button}"), id="cancel_button", on_click=Events.on_cancel),
+        Button(Format("{skip_button}"), id="skip_button", on_click=Events.on_skip, when="skip_button"),
         TextInput("input_name", on_success=Events.on_input),
         state=PromptSG.main,
         getter=getter,

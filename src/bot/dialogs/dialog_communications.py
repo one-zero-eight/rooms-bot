@@ -38,9 +38,11 @@ class TaskViewDialogStartData:
 class PromptDialogStartData:
     content: str
     cancel_message: str | None = "Canceled"
-    cancel_button: str = "Cancel"
+    cancel_button_text: str = "Cancel"
     format: str = "Enter {}"
     filter: re.Pattern | Callable[[str], bool] | None = None
+    can_skip: bool = False
+    skip_button_text: str | None = "Leave empty"
 
     @property
     def prompt(self) -> str:

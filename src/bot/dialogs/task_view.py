@@ -108,7 +108,9 @@ class Events:
     async def on_edit_description(callback: CallbackQuery, widget, manager: DialogManager):
         await Events._prompt_string(
             "edit_description",
-            PromptDialogStartData("a new description", filter=MainWindowConsts.DESCRIPTION_INPUT_PATTERN),
+            PromptDialogStartData(
+                "a new description", filter=MainWindowConsts.DESCRIPTION_INPUT_PATTERN, can_skip=True
+            ),
             manager,
         )
 
@@ -152,7 +154,10 @@ class Events:
             await manager.show(ShowMode.SEND)
         elif start_data["intent"] == "edit_description":
             if result is not None:
-                await client.modify_task(ModifyTaskBody(id=task_id, description=result), user_id)
+                if result == "":
+                    await client.remove_task_parameters(RemoveTaskParametersBody(id=task_id, description=True), user_id)
+                else:
+                    await client.modify_task(ModifyTaskBody(id=task_id, description=result), user_id)
                 await Loader.load_task_info(manager)
             await manager.show(ShowMode.SEND)
         elif start_data["intent"] == "edit_start_date":

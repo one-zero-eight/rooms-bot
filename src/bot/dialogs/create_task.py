@@ -40,21 +40,23 @@ class Events:
         form: CreateTaskForm = manager.dialog_data["form"]
         match start_data["intent"]:
             case "enter_name":
-                if not result:
+                if result is None:
                     await Events._cancel(manager)
                     return
                 form.name = result
-                await Events._prompt_step("enter_description", PromptDialogStartData("a description"), manager)
+                await Events._prompt_step(
+                    "enter_description", PromptDialogStartData("a description", can_skip=True), manager
+                )
             case "enter_description":
-                if not result:
+                if result is None:
                     await Events._cancel(manager)
                     return
-                form.description = result
+                form.description = result if result != "" else None
                 await Events._prompt_step(
                     "enter_start_date", PromptDialogStartData("a start date", filter=datetime_validator), manager
                 )
             case "enter_start_date":
-                if not result:
+                if result is None:
                     await Events._cancel(manager)
                     return
                 form.start_date = parse_datetime(result)
@@ -64,7 +66,7 @@ class Events:
                     manager,
                 )
             case "enter_period":
-                if not result:
+                if result is None:
                     await Events._cancel(manager)
                     return
                 form.period = int(result)
