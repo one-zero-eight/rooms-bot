@@ -61,28 +61,6 @@ class TaskRepresentation:
     symbol: str
 
 
-async def getter(dialog_manager: DialogManager, **kwargs):
-    room_info: RoomDialogStartData = dialog_manager.dialog_data["room_info"]
-    daily_info: DailyInfoResponse = dialog_manager.dialog_data["daily_info"]
-    roommates: list[UserInfo] = dialog_manager.dialog_data.get("roommates", [])
-    task_data: list[TaskInfo] = dialog_manager.dialog_data.get("tasks", [])
-    tasks = [
-        TaskRepresentation(
-            t.id,
-            t.name,
-            TasksWindowConsts.INACTIVE_TASK_SYMBOL if t.inactive else TasksWindowConsts.ACTIVE_TASK_SYMBOL,
-        )
-        for t in task_data
-    ]
-    return {
-        "room_id": room_info.id,
-        "room_name": room_info.name,
-        "daily_info": daily_info,
-        "roommates": roommates,
-        "tasks": tasks,
-    }
-
-
 class Events:
     @staticmethod
     async def on_start(start_data: dict, manager: DialogManager):
@@ -191,10 +169,37 @@ class Loader:
         manager.dialog_data["tasks"] = data
 
 
+async def getter(dialog_manager: DialogManager, **kwargs):
+    room_info: RoomDialogStartData = dialog_manager.dialog_data["room_info"]
+    daily_info: DailyInfoResponse = dialog_manager.dialog_data["daily_info"]
+    roommates: list[UserInfo] = dialog_manager.dialog_data.get("roommates", [])
+    task_data: list[TaskInfo] = dialog_manager.dialog_data.get("tasks", [])
+    tasks = [
+        TaskRepresentation(
+            t.id,
+            t.name,
+            TasksWindowConsts.INACTIVE_TASK_SYMBOL if t.inactive else TasksWindowConsts.ACTIVE_TASK_SYMBOL,
+        )
+        for t in task_data
+    ]
+    return {
+        "room_id": room_info.id,
+        "room_name": room_info.name,
+        "duties": [(t.name, t.today_executor.fullname) for t in daily_info.tasks],
+        "roommates": roommates,
+        "tasks": tasks,
+    }
+
+
 room_dialog = Dialog(
     # Main page
     Window(
-        Format("Your room: {room_name}\nID: {room_id}\n\n{daily_info}"),
+        Format("Your room: {room_name}\n"),
+        Const("Duties:"),
+        List(
+            Format("- {item[0]}: {item[1]}"),
+            items="duties",
+        ),
         Row(
             Button(
                 Const("Refresh"),
