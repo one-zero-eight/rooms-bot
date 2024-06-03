@@ -112,7 +112,7 @@ class Events:
             form: CreateTaskForm = result[1]
             await client.create_task(CreateTaskBody(**asdict(form)), manager.event.from_user.id)
             await Loader.load_tasks(manager)
-            await manager.show()
+            # await manager.show()
 
     @staticmethod
     @select_finder("tasks")

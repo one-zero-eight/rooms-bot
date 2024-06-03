@@ -44,15 +44,15 @@ class Events:
 
     @staticmethod
     async def on_select_order(callback: CallbackQuery, widget, manager: DialogManager, order_id: str):
-        await manager.done((True, int(order_id)))
+        await manager.done((True, int(order_id)), show_mode=ShowMode.NO_UPDATE)
 
     @staticmethod
     async def on_select_none(callback: CallbackQuery, widget, manager: DialogManager):
-        await manager.done((True, None), show_mode=ShowMode.EDIT)
+        await manager.done((True, None), show_mode=ShowMode.NO_UPDATE)
 
     @staticmethod
     async def on_cancel(callback: CallbackQuery, widget, manager: DialogManager):
-        await manager.done((False, None), show_mode=ShowMode.EDIT)
+        await manager.done((False, None), show_mode=ShowMode.NO_UPDATE)
 
     @staticmethod
     async def on_create_order(callback: CallbackQuery, widget, manager: DialogManager):
