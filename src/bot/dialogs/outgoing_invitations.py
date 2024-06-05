@@ -65,7 +65,7 @@ class Events:
 
     @staticmethod
     async def on_enter_alias(message: Message, widget, manager: DialogManager, alias: str):
-        alias = alias.lower()
+        alias = alias.strip()
         if not InviteWindowConsts.ALIAS_PATTERN.fullmatch(alias):
             await message.answer(InviteWindowConsts.INCORRECT_ALIAS_MESSAGE)
             return
