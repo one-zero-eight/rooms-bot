@@ -53,7 +53,7 @@ class Events:
                     return
                 form.description = result if result != "" else None
                 await Events._prompt_step(
-                    "enter_start_date", PromptDialogStartData("a start date", filter=datetime_validator), manager
+                    "enter_start_date", PromptDialogStartData("a start date (d.m.Y H:M)", filter=datetime_validator), manager
                 )
             case "enter_start_date":
                 if result is None:
