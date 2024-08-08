@@ -80,3 +80,25 @@ class OrderInfoResponse(BaseModel):
 class ListOfOrdersResponse(BaseModel):
     users: list[UserInfo]
     orders: dict[int, list[int]]
+
+
+class RuleInfo(BaseModel):
+    id: int
+    name: str
+    text: str
+
+
+class ManualTaskInfo(BaseModel):
+    id: int
+    name: str
+
+
+class ManualTaskInfoResponse(BaseModel):
+    name: str
+    description: str | None
+    order_id: int | None
+
+
+class ManualTaskCurrentResponse(BaseModel):
+    number: int
+    user: UserInfo

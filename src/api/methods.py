@@ -4,6 +4,10 @@ from src.api.schemas.method_input_schemas import (
     CreateTaskBody,
     ModifyTaskBody,
     RemoveTaskParametersBody,
+    CreateRuleBody,
+    CreateManualTaskBody,
+    ModifyManualTaskBody,
+    RemoveManualTaskParametersBody,
 )
 from src.api.schemas.method_output_schemas import (
     DailyInfoResponse,
@@ -14,6 +18,10 @@ from src.api.schemas.method_output_schemas import (
     TaskInfo,
     OrderInfoResponse,
     ListOfOrdersResponse,
+    RuleInfo,
+    ManualTaskInfo,
+    ManualTaskInfoResponse,
+    ManualTaskCurrentResponse,
 )
 
 
@@ -118,3 +126,45 @@ class InNoHassleMusicRoomAPI:
 
     async def list_of_orders(self, user_id: int) -> ListOfOrdersResponse:
         return ListOfOrdersResponse.model_validate(await self._post("/bot/room/list_of_orders", user_id))
+
+    async def create_rule(self, rule: CreateRuleBody, user_id: int) -> int:
+        return await self._post("/bot/rule/create", user_id, rule=rule.model_dump())
+
+    async def edit_rule(self, rule_id: int, rule: CreateRuleBody, user_id: int) -> bool:
+        return await self._post("/bot/rule/edit", user_id, rule=rule.model_dump(), rule_id=rule_id)
+
+    async def delete_rule(self, rule_id: int, user_id: int) -> bool:
+        return await self._post("/bot/rule/delete", user_id, rule_id=rule_id)
+
+    async def get_rules(self, user_id: int) -> list[RuleInfo]:
+        return [RuleInfo.model_validate(obj) for obj in (await self._post("/bot/rule/list", user_id))]
+
+    async def create_manual_task(self, task: CreateManualTaskBody, user_id: int) -> int:
+        return await self._post("/bot/manual_task/create", user_id, task=task.model_dump())
+
+    async def modify_manual_task(self, task: ModifyManualTaskBody, user_id: int) -> None:
+        return await self._post("/bot/manual_task/modify", user_id, task=task.model_dump())
+
+    async def remove_manual_task_parameters(self, task: RemoveManualTaskParametersBody, user_id: int) -> None:
+        return await self._post("/bot/manual_task/remove_parameters", user_id, task=task.model_dump())
+
+    async def get_manual_tasks(self, user_id: int) -> list[ManualTaskInfo]:
+        return [
+            ManualTaskInfo.model_validate(obj) for obj in (await self._post("/bot/manual_task/list", user_id))["tasks"]
+        ]
+
+    async def get_manual_task_info(self, task_id: int, user_id: int) -> ManualTaskInfoResponse:
+        return ManualTaskInfoResponse.model_validate(
+            await self._post("/bot/manual_task/info", user_id, task_id=task_id)
+        )
+
+    async def delete_manual_task(self, task_id: int, user_id: int) -> None:
+        return await self._post("/bot/manual_task/delete", user_id, task_id=task_id)
+
+    async def do_manual_task(self, task_id: int, user_id: int) -> None:
+        return await self._post("/bot/manual_task/do", user_id, task_id=task_id)
+
+    async def get_manual_task_current_executor(self, task_id: int, user_id: int) -> ManualTaskCurrentResponse:
+        return ManualTaskCurrentResponse.model_validate(
+            await self._post("/bot/manual_task/current_executor", user_id, task_id=task_id)
+        )
