@@ -134,7 +134,7 @@ room_dialog = Dialog(
     # Main page
     Window(
         Format("Your room: {room_name}\n"),
-        Const("Duties:"),
+        Const("Today duties:"),
         List(
             Format("- {item[0]}: {item[1]}"),
             items="duties",

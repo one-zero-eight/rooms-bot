@@ -14,7 +14,7 @@ from src.bot.utils import select_finder
 
 
 class TasksWindowConsts:
-    HEADER_TEXT = "Tasks:\n"
+    HEADER_TEXT = "Periodic tasks follow a circular queue each n days."
     NEW_TASK_BUTTON_TEXT = "Add a new task"
     ACTIVE_TASK_SYMBOL = "+"
     INACTIVE_TASK_SYMBOL = "-"
