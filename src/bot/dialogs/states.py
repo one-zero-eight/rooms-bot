@@ -14,6 +14,7 @@ class RoomSG(StatesGroup):
     roommates = State()
     invitations = State()
     tasks = State()
+    rules = State()
 
 
 class IncomingInvitationsSG(StatesGroup):
@@ -46,6 +47,15 @@ class CreateOrderSG(StatesGroup):
     multiple = State()
 
 
+class RulesSG(StatesGroup):
+    list = State()
+    view = State()
+
+
+class CreateRuleSG(StatesGroup):
+    main = State()
+
+
 __all__ = [
     "PromptSG",
     "RoomlessSG",
@@ -57,4 +67,6 @@ __all__ = [
     "OrderSelectionSG",
     "CreateTaskSG",
     "CreateOrderSG",
+    "RulesSG",
+    "CreateRuleSG",
 ]

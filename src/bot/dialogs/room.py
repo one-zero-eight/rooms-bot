@@ -16,6 +16,7 @@ from src.bot.dialogs.dialog_communications import (
     IncomingInvitationDialogStartData,
     TaskViewDialogStartData,
     CreateTaskForm,
+    RulesDialogStartData,
 )
 from src.bot.dialogs.states import (
     RoomSG,
@@ -25,6 +26,7 @@ from src.bot.dialogs.states import (
     OutgoingInvitationsSG,
     TaskViewSG,
     CreateTaskSG,
+    RulesSG,
 )
 from src.bot.utils import select_finder
 
@@ -33,6 +35,7 @@ class MainWindowConsts:
     REFRESH_BUTTON_ID = "refresh_button"
     ROOMMATES_BUTTON_ID = "roommates_button"
     TASKS_BUTTON_ID = "tasks_button"
+    RULES_BUTTON_ID = "rules_button"
     INBOX_BUTTON_ID = "incoming_invitations_button"
     MY_INVITATIONS_BUTTON_ID = "my_invitations_button"
     LEAVE_BUTTON_ID = "leave_button"
@@ -111,7 +114,7 @@ class Events:
             form: CreateTaskForm = result[1]
             await client.create_task(CreateTaskBody(**asdict(form)), manager.event.from_user.id)
             await Loader.load_tasks(manager)
-            # await manager.show()
+            # no update is required because on_process happens before the dialog is re-rendered
 
     @staticmethod
     @select_finder("tasks")
@@ -132,6 +135,14 @@ class Events:
             },
             state=CreateTaskSG.main,
             show_mode=ShowMode.SEND,
+        )
+
+    @staticmethod
+    async def on_click_rules(callback: CallbackQuery, button, manager: DialogManager):
+        await manager.start(
+            RulesSG.list,
+            show_mode=ShowMode.EDIT,
+            data={"intent": "create_rule", "input": RulesDialogStartData(manager.dialog_data["room_info"].id)},
         )
 
 
@@ -217,6 +228,11 @@ room_dialog = Dialog(
                 id=MainWindowConsts.TASKS_BUTTON_ID,
                 state=RoomSG.tasks,
                 on_click=Loader.load_callback(Loader.load_tasks),
+            ),
+            Button(
+                Const("Rules"),
+                id=MainWindowConsts.RULES_BUTTON_ID,
+                on_click=Events.on_click_rules,
             ),
         ),
         Row(
