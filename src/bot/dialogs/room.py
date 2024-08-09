@@ -1,21 +1,16 @@
-import dataclasses
-from dataclasses import asdict
 from typing import Awaitable, Callable, Any
 
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, Window, DialogManager, ShowMode, StartMode
-from aiogram_dialog.widgets.kbd import Row, Button, SwitchTo, Start, Select, Group
+from aiogram_dialog.widgets.kbd import Row, Button, SwitchTo, Start
 from aiogram_dialog.widgets.text import Format, Const, List
 
 from src.api import client
-from src.api.schemas.method_input_schemas import CreateTaskBody
-from src.api.schemas.method_output_schemas import DailyInfoResponse, UserInfo, TaskInfo
+from src.api.schemas.method_output_schemas import DailyInfoResponse, UserInfo
 from src.bot.dialogs.dialog_communications import (
     RoomDialogStartData,
     ConfirmationDialogStartData,
     IncomingInvitationDialogStartData,
-    TaskViewDialogStartData,
-    CreateTaskForm,
     RulesDialogStartData,
 )
 from src.bot.dialogs.states import (
@@ -24,11 +19,9 @@ from src.bot.dialogs.states import (
     RoomlessSG,
     IncomingInvitationsSG,
     OutgoingInvitationsSG,
-    TaskViewSG,
-    CreateTaskSG,
     RulesSG,
+    PeriodicTasksSG,
 )
-from src.bot.utils import select_finder
 
 
 class MainWindowConsts:
@@ -45,22 +38,10 @@ class RoommatesWindowConsts:
     BACK_BUTTON_ID = "back_button"
 
 
-class TasksWindowConsts:
-    HEADER_TEXT = "Tasks:\n"
-    NEW_TASK_BUTTON_TEXT = "Add a new task"
-    ACTIVE_TASK_SYMBOL = "+"
-    INACTIVE_TASK_SYMBOL = "-"
-
+class TaskCategoriesWindowConsts:
+    PERIODIC_TASKS_BUTTON_ID = "periodic_tasks_button"
+    MANUAL_TASKS_BUTTON_ID = "manual_tasks_button"
     BACK_BUTTON_ID = "back_button"
-    NEW_TASK_BUTTON_ID = "new_task_button"
-    TASK_SELECT_ID = "task_select"
-
-
-@dataclasses.dataclass
-class TaskRepresentation:
-    id: int
-    name: str
-    symbol: str
 
 
 class Events:
@@ -85,10 +66,8 @@ class Events:
         )
 
     @staticmethod
-    async def on_process_result(
-        start_data: dict, result: bool | tuple[bool, CreateTaskForm] | None, manager: DialogManager
-    ):
-        if not isinstance(start_data, dict):
+    async def on_process_result(start_data: dict, result: bool | None, manager: DialogManager):
+        if not start_data or not isinstance(start_data, dict):
             return
 
         if start_data["intent"] == "leave":
@@ -103,39 +82,6 @@ class Events:
                 mode=StartMode.RESET_STACK,
                 show_mode=ShowMode.SEND,
             )
-
-        if start_data["intent"] == "view_task":
-            await Loader.load_tasks(manager)
-            await manager.show()
-
-        if start_data["intent"] == "create_task":
-            if not result[0]:
-                return
-            form: CreateTaskForm = result[1]
-            await client.create_task(CreateTaskBody(**asdict(form)), manager.event.from_user.id)
-            await Loader.load_tasks(manager)
-            # no update is required because on_process happens before the dialog is re-rendered
-
-    @staticmethod
-    @select_finder("tasks")
-    async def on_select_task(callback: CallbackQuery, widget, manager: DialogManager, task: TaskRepresentation):
-        await manager.start(
-            TaskViewSG.main,
-            data={
-                "intent": "view_task",
-                "input": TaskViewDialogStartData(task.id),
-            },
-        )
-
-    @staticmethod
-    async def on_create_task(callback: CallbackQuery, widget, manager: DialogManager):
-        await manager.start(
-            data={
-                "intent": "create_task",
-            },
-            state=CreateTaskSG.main,
-            show_mode=ShowMode.SEND,
-        )
 
     @staticmethod
     async def on_click_rules(callback: CallbackQuery, button, manager: DialogManager):
@@ -172,31 +118,16 @@ class Loader:
         data = await client.get_room_info(manager.event.from_user.id)
         manager.dialog_data["roommates"] = [user for user in data.users if not user.empty()]
 
-    @staticmethod
-    async def load_tasks(manager: DialogManager):
-        data = await client.get_tasks(manager.event.from_user.id)
-        manager.dialog_data["tasks"] = data
-
 
 async def getter(dialog_manager: DialogManager, **kwargs):
     room_info: RoomDialogStartData = dialog_manager.dialog_data["room_info"]
     daily_info: DailyInfoResponse = dialog_manager.dialog_data["daily_info"]
     roommates: list[UserInfo] = dialog_manager.dialog_data.get("roommates", [])
-    task_data: list[TaskInfo] = dialog_manager.dialog_data.get("tasks", [])
-    tasks = [
-        TaskRepresentation(
-            t.id,
-            t.name,
-            TasksWindowConsts.INACTIVE_TASK_SYMBOL if t.inactive else TasksWindowConsts.ACTIVE_TASK_SYMBOL,
-        )
-        for t in task_data
-    ]
     return {
         "room_id": room_info.id,
         "room_name": room_info.name,
         "duties": [(t.name, t.today_executor.fullname) for t in daily_info.tasks],
         "roommates": roommates,
-        "tasks": tasks,
     }
 
 
@@ -227,7 +158,6 @@ room_dialog = Dialog(
                 Const("Tasks"),
                 id=MainWindowConsts.TASKS_BUTTON_ID,
                 state=RoomSG.tasks,
-                on_click=Loader.load_callback(Loader.load_tasks),
             ),
             Button(
                 Const("Rules"),
@@ -273,32 +203,26 @@ room_dialog = Dialog(
         state=RoomSG.roommates,
         getter=getter,
     ),
-    # Task list
+    # Task category selection
     Window(
-        Const(TasksWindowConsts.HEADER_TEXT),
+        Const("Choose a category:"),
         SwitchTo(
             Const("Back"),
-            TasksWindowConsts.BACK_BUTTON_ID,
-            RoomSG.main,
+            TaskCategoriesWindowConsts.BACK_BUTTON_ID,
+            state=RoomSG.main,
             on_click=Loader.load_callback(Loader.load_daily_info),
         ),
-        Button(
-            Const(TasksWindowConsts.NEW_TASK_BUTTON_TEXT),
-            id=TasksWindowConsts.NEW_TASK_BUTTON_ID,
-            on_click=Events.on_create_task,
+        Start(
+            Const("Periodic"),
+            TaskCategoriesWindowConsts.PERIODIC_TASKS_BUTTON_ID,
+            state=PeriodicTasksSG.list,
         ),
-        Group(
-            Select(
-                Format("[{item.symbol}] {item.name}"),
-                id=TasksWindowConsts.TASK_SELECT_ID,
-                item_id_getter=lambda item: item.id,
-                items="tasks",
-                on_click=Events.on_select_task,
-            ),
-            width=2,
-        ),
+        # Start(
+        #     Const("Manual"),
+        #     TaskCategoriesWindowConsts.MANUAL_TASKS_BUTTON_ID,
+        #     state=
+        # ),
         state=RoomSG.tasks,
-        getter=getter,
     ),
     on_start=Events.on_start,
     on_process_result=Events.on_process_result,

@@ -63,9 +63,9 @@ def select_finder(
         async def wrapped(callback: CallbackQuery, widget: Any, manager: DialogManager, item_id: str):
             id_ = id_func(item_id)
             items: list[T] = manager.dialog_data[list_name]
-            for i in items:
-                if i.id == id_:
-                    await func(callback, widget, manager, i)
+            for item in items:
+                if item.id == id_:
+                    await func(callback, widget, manager, item)
                     return
             else:
                 raise RuntimeError("Selected non-existent item")

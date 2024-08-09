@@ -8,8 +8,9 @@ from src.bot.dialogs.confirmation import confirmation_dialog
 from src.bot.dialogs.incoming_invitations import incoming_invitations_dialog
 from src.bot.dialogs.outgoing_invitations import outgoing_invitations_dialog
 from src.bot.dialogs.rules import rules_dialog
-from src.bot.dialogs.task_view import task_view_dialog
-from src.bot.dialogs.create_task import create_task_dialog
+from src.bot.dialogs.periodic_task.periodic_tasks import periodic_tasks_dialog
+from src.bot.dialogs.periodic_task.periodic_task_view import periodic_task_view_dialog
+from src.bot.dialogs.periodic_task.create_periodic_task import create_periodic_task_dialog
 
 dialogs = [
     roomless_dialog,
@@ -18,9 +19,10 @@ dialogs = [
     incoming_invitations_dialog,
     confirmation_dialog,
     outgoing_invitations_dialog,
-    task_view_dialog,
     select_order_dialog,
-    create_task_dialog,
+    periodic_tasks_dialog,
+    periodic_task_view_dialog,
+    create_periodic_task_dialog,
     create_order_dialog,
     rules_dialog,
     create_rule_dialog,
@@ -34,9 +36,10 @@ __all__ = [
     "confirmation_dialog",
     "outgoing_invitations_dialog",
     "incoming_invitations_dialog",
-    "task_view_dialog",
     "select_order_dialog",
-    "create_task_dialog",
+    "periodic_tasks_dialog",
+    "periodic_task_view_dialog",
+    "create_periodic_task_dialog",
     "create_order_dialog",
     "rules_dialog",
     "create_rule_dialog",

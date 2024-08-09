@@ -22,11 +22,12 @@ class Events:
     @staticmethod
     async def on_input(message: Message, widget, manager: DialogManager, text: str):
         if not manager.dialog_data["args"].validate(text):
-            await manager.event.bot.send_message(manager.event.message.chat.id, "Input is invalid. Try again.")
+            await message.bot.send_message(message.chat.id, "Input is invalid. Try again.")
+            return
         await manager.done(text, show_mode=ShowMode.NO_UPDATE)
 
     @staticmethod
-    async def on_skip(message: Message, widget, manager: DialogManager):
+    async def on_skip(callback: CallbackQuery, widget, manager: DialogManager):
         await manager.done("", show_mode=ShowMode.NO_UPDATE)
 
 

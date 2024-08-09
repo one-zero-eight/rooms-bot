@@ -1,7 +1,7 @@
 from aiogram_dialog import ShowMode, DialogManager, Dialog, Window
 
 from src.bot.dialogs.dialog_communications import PromptDialogStartData, CreateTaskForm
-from src.bot.dialogs.states import PromptSG, CreateTaskSG, OrderSelectionSG
+from src.bot.dialogs.states import PromptSG, CreatePeriodicTaskSG, OrderSelectionSG
 from src.bot.utils import datetime_validator, parse_datetime
 
 
@@ -86,9 +86,9 @@ class Events:
                 await manager.done((True, form), ShowMode.SEND)
 
 
-create_task_dialog = Dialog(
+create_periodic_task_dialog = Dialog(
     Window(
-        state=CreateTaskSG.main,
+        state=CreatePeriodicTaskSG.main,
     ),
     on_start=Events.on_start,
     on_process_result=Events.on_process_result,

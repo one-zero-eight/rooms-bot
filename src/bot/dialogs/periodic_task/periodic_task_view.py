@@ -15,7 +15,7 @@ from src.bot.dialogs.dialog_communications import (
     ConfirmationDialogStartData,
     PromptDialogStartData,
 )
-from src.bot.dialogs.states import TaskViewSG, ConfirmationSG, PromptSG, OrderSelectionSG
+from src.bot.dialogs.states import PeriodicTaskViewSG, ConfirmationSG, PromptSG, OrderSelectionSG
 from src.bot.utils import parse_datetime, datetime_validator
 
 
@@ -190,7 +190,7 @@ async def getter(dialog_manager: DialogManager, **kwargs):
     }
 
 
-task_view_dialog = Dialog(
+periodic_task_view_dialog = Dialog(
     Window(
         Format(MainWindowConsts.TASK_VIEW_FORMAT),
         Format(MainWindowConsts.DESCRIPTION_FORMAT, when=lambda data, w, m: data["task"].description),
@@ -239,7 +239,7 @@ task_view_dialog = Dialog(
             ),
         ),
         Cancel(Const("Back"), MainWindowConsts.BACK_BUTTON_ID),
-        state=TaskViewSG.main,
+        state=PeriodicTaskViewSG.main,
         getter=getter,
     ),
     on_start=Events.on_start,
