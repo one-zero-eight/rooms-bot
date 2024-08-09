@@ -59,12 +59,12 @@ class PromptDialogStartData:
 
 
 @dataclass
-class CreateTaskForm:
+class CreatePeriodicTaskForm:
     name: str | None = None
     description: str | None = None
     start_date: datetime | None = None
     period: int | None = None
-    order_id: str | None = None
+    order_id: int | None = None
 
 
 @dataclass
@@ -73,11 +73,18 @@ class CreateRuleForm:
     text: str | None = None
 
 
+@dataclass
+class CreateManualTaskForm:
+    name: str | None = None
+    description: str | None = None
+    order_id: int | None = None
+
+
 __all__ = [
     "RoomDialogStartData",
     "ConfirmationDialogStartData",
     "IncomingInvitationDialogStartData",
     "TaskViewDialogStartData",
     "PromptDialogStartData",
-    "CreateTaskForm",
+    "CreatePeriodicTaskForm",
 ]

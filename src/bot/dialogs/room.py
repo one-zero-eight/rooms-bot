@@ -20,6 +20,7 @@ from src.bot.dialogs.states import (
     OutgoingInvitationsSG,
     RulesSG,
     PeriodicTasksSG,
+    ManualTasksSG,
 )
 
 
@@ -216,11 +217,11 @@ room_dialog = Dialog(
             TaskCategoriesWindowConsts.PERIODIC_TASKS_BUTTON_ID,
             state=PeriodicTasksSG.list,
         ),
-        # Start(
-        #     Const("Manual"),
-        #     TaskCategoriesWindowConsts.MANUAL_TASKS_BUTTON_ID,
-        #     state=
-        # ),
+        Start(
+            Const("Manual"),
+            TaskCategoriesWindowConsts.MANUAL_TASKS_BUTTON_ID,
+            state=ManualTasksSG.list,
+        ),
         state=RoomSG.tasks,
     ),
     on_start=Events.on_start,

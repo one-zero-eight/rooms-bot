@@ -6,15 +6,15 @@ from aiogram_dialog.widgets.kbd import Button, Group, Select, Cancel
 from aiogram_dialog.widgets.text import Const, Format
 
 from src.api import client
-from src.api.schemas.method_input_schemas import CreateTaskBody
-from src.api.schemas.method_output_schemas import TaskInfo
-from src.bot.dialogs.dialog_communications import CreatePeriodicTaskForm, TaskViewDialogStartData
-from src.bot.dialogs.states import PeriodicTasksSG, CreatePeriodicTaskSG, PeriodicTaskViewSG
+from src.api.schemas.method_input_schemas import CreateManualTaskBody
+from src.api.schemas.method_output_schemas import ManualTaskInfo
+from src.bot.dialogs.dialog_communications import CreateManualTaskForm, TaskViewDialogStartData
+from src.bot.dialogs.states import ManualTasksSG, CreateManualTaskSG, ManualTaskViewSG
 from src.bot.utils import select_finder
 
 
 class TasksWindowConsts:
-    HEADER_TEXT = "Periodic tasks follow a circular queue each n days."
+    HEADER_TEXT = "Manual tasks are done by people one by one independently of time."
     NEW_TASK_BUTTON_TEXT = "Add a new task"
     ACTIVE_TASK_SYMBOL = "+"
     INACTIVE_TASK_SYMBOL = "-"
@@ -34,7 +34,7 @@ class TaskRepresentation:
 class Loader:
     @staticmethod
     async def load_tasks(manager: DialogManager):
-        data: list[TaskInfo] = await client.get_tasks(manager.event.from_user.id)
+        data: list[ManualTaskInfo] = await client.get_manual_tasks(manager.event.from_user.id)
         manager.dialog_data["tasks"] = data
 
 
@@ -45,9 +45,9 @@ class Events:
 
     @staticmethod
     @select_finder("tasks")
-    async def on_select_task(callback: CallbackQuery, widget, manager: DialogManager, task: TaskInfo):
+    async def on_select_task(callback: CallbackQuery, widget, manager: DialogManager, task: ManualTaskInfo):
         await manager.start(
-            PeriodicTaskViewSG.main, data={"intent": "view_task", "input": TaskViewDialogStartData(task.id)}
+            ManualTaskViewSG.main, data={"intent": "view_task", "input": TaskViewDialogStartData(task.id)}
         )
 
     @staticmethod
@@ -56,20 +56,20 @@ class Events:
             data={
                 "intent": "create_task",
             },
-            state=CreatePeriodicTaskSG.main,
+            state=CreateManualTaskSG.main,
             show_mode=ShowMode.SEND,
         )
 
     @staticmethod
-    async def on_process_result(start_data: dict, result: tuple[bool, CreatePeriodicTaskForm], manager: DialogManager):
+    async def on_process_result(start_data: dict, result: tuple[bool, CreateManualTaskForm], manager: DialogManager):
         if not start_data or not isinstance(start_data, dict):
             return
 
         if start_data["intent"] == "create_task":
             if not result[0]:
                 return
-            form: CreatePeriodicTaskForm = result[1]
-            await client.create_task(CreateTaskBody(**asdict(form)), manager.event.from_user.id)
+            form: CreateManualTaskForm = result[1]
+            await client.create_manual_task(CreateManualTaskBody(**asdict(form)), manager.event.from_user.id)
             # no update is required because on_process happens before the dialog is re-rendered
 
         await Loader.load_tasks(manager)
@@ -77,7 +77,7 @@ class Events:
 
 # noinspection DuplicatedCode
 async def list_getter(dialog_manager: DialogManager, **kwargs):
-    task_data: list[TaskInfo] = dialog_manager.dialog_data.get("tasks", [])
+    task_data: list[ManualTaskInfo] = dialog_manager.dialog_data.get("tasks", [])
     tasks = [
         TaskRepresentation(
             t.id,
@@ -91,7 +91,7 @@ async def list_getter(dialog_manager: DialogManager, **kwargs):
     }
 
 
-periodic_tasks_dialog = Dialog(
+manual_tasks_dialog = Dialog(
     # Task list
     Window(
         Const(TasksWindowConsts.HEADER_TEXT),
@@ -114,7 +114,7 @@ periodic_tasks_dialog = Dialog(
             ),
             width=2,
         ),
-        state=PeriodicTasksSG.list,
+        state=ManualTasksSG.list,
         getter=list_getter,
     ),
     on_start=Events.on_start,

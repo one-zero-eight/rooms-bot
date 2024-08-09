@@ -11,6 +11,9 @@ from src.bot.dialogs.rule.rules import rules_dialog
 from src.bot.dialogs.periodic_task.periodic_tasks import periodic_tasks_dialog
 from src.bot.dialogs.periodic_task.periodic_task_view import periodic_task_view_dialog
 from src.bot.dialogs.periodic_task.create_periodic_task import create_periodic_task_dialog
+from src.bot.dialogs.manual_task.manual_tasks import manual_tasks_dialog
+from src.bot.dialogs.manual_task.manual_task_view import manual_task_view_dialog
+from src.bot.dialogs.manual_task.create_manual_task import create_manual_task_dialog
 
 dialogs = [
     roomless_dialog,
@@ -26,6 +29,9 @@ dialogs = [
     create_order_dialog,
     rules_dialog,
     create_rule_dialog,
+    manual_tasks_dialog,
+    manual_task_view_dialog,
+    create_manual_task_dialog,
 ]
 
 __all__ = [
@@ -43,4 +49,7 @@ __all__ = [
     "create_order_dialog",
     "rules_dialog",
     "create_rule_dialog",
+    "manual_tasks_dialog",
+    "manual_task_view_dialog",
+    "create_manual_task_dialog",
 ]

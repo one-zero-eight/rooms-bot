@@ -1,6 +1,6 @@
 from aiogram_dialog import ShowMode, DialogManager, Dialog, Window
 
-from src.bot.dialogs.dialog_communications import PromptDialogStartData, CreateTaskForm
+from src.bot.dialogs.dialog_communications import PromptDialogStartData, CreatePeriodicTaskForm
 from src.bot.dialogs.states import PromptSG, CreatePeriodicTaskSG, OrderSelectionSG
 from src.bot.utils import datetime_validator, parse_datetime
 
@@ -8,7 +8,7 @@ from src.bot.utils import datetime_validator, parse_datetime
 class Events:
     @staticmethod
     async def on_start(start_data: dict, manager: DialogManager):
-        manager.dialog_data["form"] = CreateTaskForm()
+        manager.dialog_data["form"] = CreatePeriodicTaskForm()
         await manager.start(
             PromptSG.main,
             data={
@@ -35,7 +35,8 @@ class Events:
 
     @staticmethod
     async def on_process_result(start_data: dict, result: str | None, manager: DialogManager):
-        form: CreateTaskForm = manager.dialog_data["form"]
+        form: CreatePeriodicTaskForm = manager.dialog_data["form"]
+        # noinspection DuplicatedCode
         match start_data["intent"]:
             case "enter_name":
                 if result is None:
