@@ -22,7 +22,7 @@ class Events:
     @staticmethod
     async def on_input(message: Message, widget, manager: DialogManager, text: str):
         if not manager.dialog_data["args"].validate(text):
-            return
+            await manager.event.bot.send_message(manager.event.message.chat.id, "Input is invalid. Try again.")
         await manager.done(text, show_mode=ShowMode.NO_UPDATE)
 
     @staticmethod
