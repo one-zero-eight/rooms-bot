@@ -1,6 +1,6 @@
 from aiogram_dialog import ShowMode, DialogManager, Dialog, Window
 
-from src.bot.dialogs.dialog_communications import PromptDialogStartData, CreateTaskDialogStartData, CreateTaskForm
+from src.bot.dialogs.dialog_communications import PromptDialogStartData, CreateTaskForm
 from src.bot.dialogs.states import PromptSG, CreateTaskSG, OrderSelectionSG
 from src.bot.utils import datetime_validator, parse_datetime
 
@@ -8,8 +8,6 @@ from src.bot.utils import datetime_validator, parse_datetime
 class Events:
     @staticmethod
     async def on_start(start_data: dict, manager: DialogManager):
-        args: CreateTaskDialogStartData = start_data["input"]
-        manager.dialog_data["room_id"] = args.room_id
         manager.dialog_data["form"] = CreateTaskForm()
         await manager.start(
             PromptSG.main,

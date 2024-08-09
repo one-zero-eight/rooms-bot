@@ -59,11 +59,6 @@ class PromptDialogStartData:
 
 
 @dataclass
-class CreateTaskDialogStartData:
-    room_id: int
-
-
-@dataclass
 class CreateTaskForm:
     name: str | None = None
     description: str | None = None
@@ -78,6 +73,5 @@ __all__ = [
     "IncomingInvitationDialogStartData",
     "TaskViewDialogStartData",
     "PromptDialogStartData",
-    "CreateTaskDialogStartData",
     "CreateTaskForm",
 ]

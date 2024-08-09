@@ -15,7 +15,6 @@ from src.bot.dialogs.dialog_communications import (
     ConfirmationDialogStartData,
     IncomingInvitationDialogStartData,
     TaskViewDialogStartData,
-    CreateTaskDialogStartData,
     CreateTaskForm,
 )
 from src.bot.dialogs.states import (
@@ -130,7 +129,6 @@ class Events:
         await manager.start(
             data={
                 "intent": "create_task",
-                "input": CreateTaskDialogStartData(manager.dialog_data["room_info"].id),
             },
             state=CreateTaskSG.main,
             show_mode=ShowMode.SEND,
@@ -264,7 +262,7 @@ room_dialog = Dialog(
         Const(TasksWindowConsts.HEADER_TEXT),
         SwitchTo(
             Const("Back"),
-            RoommatesWindowConsts.BACK_BUTTON_ID,
+            TasksWindowConsts.BACK_BUTTON_ID,
             RoomSG.main,
             on_click=Loader.load_callback(Loader.load_daily_info),
         ),
