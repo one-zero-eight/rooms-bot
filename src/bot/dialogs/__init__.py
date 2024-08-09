@@ -2,9 +2,9 @@ from src.bot.dialogs.create_order import create_order_dialog
 from src.bot.dialogs.create_rule import create_rule_dialog
 from src.bot.dialogs.order_selection import select_order_dialog
 from src.bot.dialogs.roomless import roomless_dialog
-from src.bot.dialogs.prompt import prompt_dialog
+from src.bot.dialogs.utils.prompt import prompt_dialog
 from src.bot.dialogs.room import room_dialog
-from src.bot.dialogs.confirmation import confirmation_dialog
+from src.bot.dialogs.utils.confirmation import confirmation_dialog
 from src.bot.dialogs.incoming_invitations import incoming_invitations_dialog
 from src.bot.dialogs.outgoing_invitations import outgoing_invitations_dialog
 from src.bot.dialogs.rules import rules_dialog
