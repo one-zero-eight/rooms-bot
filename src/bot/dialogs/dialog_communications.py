@@ -68,11 +68,6 @@ class CreateTaskForm:
 
 
 @dataclass
-class RulesDialogStartData:
-    room_id: int
-
-
-@dataclass
 class CreateRuleForm:
     name: str | None = None
     text: str | None = None
@@ -85,5 +80,4 @@ __all__ = [
     "TaskViewDialogStartData",
     "PromptDialogStartData",
     "CreateTaskForm",
-    "RulesDialogStartData",
 ]

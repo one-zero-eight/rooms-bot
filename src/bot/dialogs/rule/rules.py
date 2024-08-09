@@ -6,7 +6,7 @@ from aiogram_dialog.widgets.text import Format, Const, Jinja
 from src.api import client
 from src.api.schemas.method_input_schemas import CreateRuleBody
 from src.api.schemas.method_output_schemas import RuleInfo
-from src.bot.dialogs.dialog_communications import RulesDialogStartData, CreateRuleForm
+from src.bot.dialogs.dialog_communications import CreateRuleForm
 from src.bot.dialogs.states import RulesSG, CreateRuleSG
 from src.bot.utils import select_finder
 
@@ -31,8 +31,6 @@ class Loader:
 class Events:
     @staticmethod
     async def on_start(start_data: dict, manager: DialogManager):
-        args: RulesDialogStartData = start_data["input"]
-        manager.dialog_data["room_info"] = args
         await Loader.load_rules(manager)
 
     @staticmethod

@@ -11,7 +11,6 @@ from src.bot.dialogs.dialog_communications import (
     RoomDialogStartData,
     ConfirmationDialogStartData,
     IncomingInvitationDialogStartData,
-    RulesDialogStartData,
 )
 from src.bot.dialogs.states import (
     RoomSG,
@@ -88,7 +87,7 @@ class Events:
         await manager.start(
             RulesSG.list,
             show_mode=ShowMode.EDIT,
-            data={"intent": "create_rule", "input": RulesDialogStartData(manager.dialog_data["room_info"].id)},
+            data={"intent": "create_rule"},
         )
 
 
