@@ -58,7 +58,6 @@ class Events:
 
         if start_data["intent"] == "create_rule":
             if not result[0]:
-                await manager.show(ShowMode.SEND)
                 return
 
             form: CreateRuleForm = result[1]
