@@ -91,6 +91,7 @@ class RuleInfo(BaseModel):
 class ManualTaskInfo(BaseModel):
     id: int
     name: str
+    inactive: bool
 
 
 class ManualTaskInfoResponse(BaseModel):
