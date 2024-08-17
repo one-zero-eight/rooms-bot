@@ -222,7 +222,6 @@ room_dialog = Dialog(
             state=RoomSG.main,
             on_click=Loader.load_callback(Loader.load_daily_info),
         ),
-
         state=RoomSG.tasks,
     ),
     on_start=Events.on_start,
