@@ -227,7 +227,10 @@ manual_task_view_dialog = Dialog(
             on_click=Events.on_do_task,
             when=lambda data, w, m: data["executors"],
         ),
-        Cancel(Const("Back"), MainWindowConsts.BACK_BUTTON_ID),
+        Cancel(
+            Const("◀️ Back"),
+            MainWindowConsts.BACK_BUTTON_ID,
+        ),
         parse_mode="HTML",
         state=ManualTaskViewSG.main,
         getter=getter,

@@ -195,7 +195,7 @@ room_dialog = Dialog(
             items="roommates",
         ),
         SwitchTo(
-            Const("Back"),
+            Const("◀️ Back"),
             RoommatesWindowConsts.BACK_BUTTON_ID,
             RoomSG.main,
             on_click=Loader.load_callback(Loader.load_daily_info),
@@ -206,12 +206,6 @@ room_dialog = Dialog(
     # Task category selection
     Window(
         Const("Choose a category:"),
-        SwitchTo(
-            Const("Back"),
-            TaskCategoriesWindowConsts.BACK_BUTTON_ID,
-            state=RoomSG.main,
-            on_click=Loader.load_callback(Loader.load_daily_info),
-        ),
         Start(
             Const("Periodic"),
             TaskCategoriesWindowConsts.PERIODIC_TASKS_BUTTON_ID,
@@ -222,6 +216,13 @@ room_dialog = Dialog(
             TaskCategoriesWindowConsts.MANUAL_TASKS_BUTTON_ID,
             state=ManualTasksSG.list,
         ),
+        SwitchTo(
+            Const("◀️ Back"),
+            TaskCategoriesWindowConsts.BACK_BUTTON_ID,
+            state=RoomSG.main,
+            on_click=Loader.load_callback(Loader.load_daily_info),
+        ),
+
         state=RoomSG.tasks,
     ),
     on_start=Events.on_start,

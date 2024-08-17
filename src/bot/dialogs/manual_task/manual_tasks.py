@@ -95,10 +95,6 @@ manual_tasks_dialog = Dialog(
     # Task list
     Window(
         Const(TasksWindowConsts.HEADER_TEXT),
-        Cancel(
-            Const("Back"),
-            TasksWindowConsts.BACK_BUTTON_ID,
-        ),
         Button(
             Const(TasksWindowConsts.NEW_TASK_BUTTON_TEXT),
             id=TasksWindowConsts.NEW_TASK_BUTTON_ID,
@@ -113,6 +109,10 @@ manual_tasks_dialog = Dialog(
                 on_click=Events.on_select_task,
             ),
             width=2,
+        ),
+        Cancel(
+            Const("◀️ Back"),
+            TasksWindowConsts.BACK_BUTTON_ID,
         ),
         state=ManualTasksSG.list,
         getter=list_getter,

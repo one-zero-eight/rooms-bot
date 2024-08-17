@@ -238,7 +238,7 @@ periodic_task_view_dialog = Dialog(
                 on_click=Events.on_edit_order,
             ),
         ),
-        Cancel(Const("Back"), MainWindowConsts.BACK_BUTTON_ID),
+        Cancel(Const("◀️ Back"), MainWindowConsts.BACK_BUTTON_ID),
         state=PeriodicTaskViewSG.main,
         getter=getter,
     ),

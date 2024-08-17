@@ -84,15 +84,6 @@ rules_dialog = Dialog(
     # Rules list
     Window(
         Const(RulesWindowConsts.HEADER_TEXT),
-        Cancel(
-            Const("Back"),
-            RulesWindowConsts.BACK_BUTTON_ID,
-        ),
-        Button(
-            Const(RulesWindowConsts.NEW_RULE_BUTTON_TEXT),
-            id=RulesWindowConsts.NEW_RULE_BUTTON_ID,
-            on_click=Events.on_create_rule,
-        ),
         Group(
             Select(
                 Format("{item.name}"),
@@ -103,6 +94,15 @@ rules_dialog = Dialog(
             ),
             width=2,
         ),
+        Button(
+            Const(RulesWindowConsts.NEW_RULE_BUTTON_TEXT),
+            id=RulesWindowConsts.NEW_RULE_BUTTON_ID,
+            on_click=Events.on_create_rule,
+        ),
+        Cancel(
+            Const("◀️ Back"),
+            RulesWindowConsts.BACK_BUTTON_ID,
+        ),
         state=RulesSG.list,
         getter=list_getter,
     ),
@@ -110,7 +110,7 @@ rules_dialog = Dialog(
     Window(
         Jinja(RulesWindowConsts.RULE_FORMAT),
         SwitchTo(
-            Const("Back"),
+            Const("◀️ Back"),
             id=RulesWindowConsts.BACK_BUTTON_ID,
             state=RulesSG.list,
         ),

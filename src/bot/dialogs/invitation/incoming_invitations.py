@@ -122,9 +122,6 @@ incoming_invitations_dialog = Dialog(
             },
             selector=lambda data, widget, manager: len(data["invitations"]) == 0,
         ),
-        Row(
-            Cancel(Const("Back")),
-        ),
         ListGroup(
             Row(
                 Button(
@@ -141,6 +138,9 @@ incoming_invitations_dialog = Dialog(
             id=InvitationsWindowConsts.INVITATIONS_LIST_ID,
             item_id_getter=lambda invitation: invitation.id,
             items=lambda data: data["invitations"],
+        ),
+        Row(
+            Cancel(Const("◀️ Back")),
         ),
         state=IncomingInvitationsSG.list,
         getter=invitations_getter,

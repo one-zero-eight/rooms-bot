@@ -96,7 +96,7 @@ periodic_tasks_dialog = Dialog(
     Window(
         Const(TasksWindowConsts.HEADER_TEXT),
         Cancel(
-            Const("Back"),
+            Const("◀️ Back"),
             TasksWindowConsts.BACK_BUTTON_ID,
         ),
         Button(

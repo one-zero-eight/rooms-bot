@@ -116,7 +116,7 @@ outgoing_invitations_dialog = Dialog(
             selector=lambda data, widget, manager: len(data["invitations"]) == 0,
         ),
         Row(
-            Cancel(Const("Back")),
+            Cancel(Const("◀️ Back")),
         ),
         Row(
             SwitchTo(
