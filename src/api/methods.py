@@ -65,13 +65,13 @@ class InNoHassleMusicRoomAPI:
         return await self._post("/bot/order/create", user_id, order={"users": users})
 
     async def create_task(self, body: CreateTaskBody, user_id: int) -> int:
-        return await self._post("/bot/task/create", user_id, task=body.model_dump())
+        return await self._post("/bot/task/create", user_id, task=body.model_dump(mode="json"))
 
     async def modify_task(self, body: ModifyTaskBody, user_id: int) -> bool:
-        return await self._post("/bot/task/modify", user_id, task=body.model_dump())
+        return await self._post("/bot/task/modify", user_id, task=body.model_dump(mode="json"))
 
     async def remove_task_parameters(self, body: RemoveTaskParametersBody, user_id: int) -> bool:
-        return await self._post("/bot/task/remove_parameters", user_id, task=body.model_dump())
+        return await self._post("/bot/task/remove_parameters", user_id, task=body.model_dump(mode="json"))
 
     async def get_daily_info(self, user_id: int) -> DailyInfoResponse:
         return DailyInfoResponse.model_validate(await self._post("/bot/room/daily_info", user_id))
@@ -128,10 +128,10 @@ class InNoHassleMusicRoomAPI:
         return ListOfOrdersResponse.model_validate(await self._post("/bot/room/list_of_orders", user_id))
 
     async def create_rule(self, rule: CreateRuleBody, user_id: int) -> int:
-        return await self._post("/bot/rule/create", user_id, rule=rule.model_dump())
+        return await self._post("/bot/rule/create", user_id, rule=rule.model_dump(mode="json"))
 
     async def edit_rule(self, rule_id: int, rule: CreateRuleBody, user_id: int) -> bool:
-        return await self._post("/bot/rule/edit", user_id, rule=rule.model_dump(), rule_id=rule_id)
+        return await self._post("/bot/rule/edit", user_id, rule=rule.model_dump(mode="json"), rule_id=rule_id)
 
     async def delete_rule(self, rule_id: int, user_id: int) -> bool:
         return await self._post("/bot/rule/delete", user_id, rule_id=rule_id)
@@ -140,13 +140,13 @@ class InNoHassleMusicRoomAPI:
         return [RuleInfo.model_validate(obj) for obj in (await self._post("/bot/rule/list", user_id))]
 
     async def create_manual_task(self, task: CreateManualTaskBody, user_id: int) -> int:
-        return await self._post("/bot/manual_task/create", user_id, task=task.model_dump())
+        return await self._post("/bot/manual_task/create", user_id, task=task.model_dump(mode="json"))
 
     async def modify_manual_task(self, task: ModifyManualTaskBody, user_id: int) -> None:
-        return await self._post("/bot/manual_task/modify", user_id, task=task.model_dump())
+        return await self._post("/bot/manual_task/modify", user_id, task=task.model_dump(mode="json"))
 
     async def remove_manual_task_parameters(self, task: RemoveManualTaskParametersBody, user_id: int) -> None:
-        return await self._post("/bot/manual_task/remove_parameters", user_id, task=task.model_dump())
+        return await self._post("/bot/manual_task/remove_parameters", user_id, task=task.model_dump(mode="json"))
 
     async def get_manual_tasks(self, user_id: int) -> list[ManualTaskInfo]:
         return [
