@@ -13,7 +13,8 @@ from src.api.schemas.method_output_schemas import UserInfo, TaskInfoResponse
 from src.bot.dialogs.dialog_communications import (
     TaskViewDialogStartData,
     ConfirmationDialogStartData,
-    PromptDialogStartData, CreateOrderStartData,
+    PromptDialogStartData,
+    CreateOrderStartData,
 )
 from src.bot.dialogs.states import PeriodicTaskViewSG, ConfirmationSG, PromptSG, CreateOrderSG
 from src.bot.utils import parse_datetime, datetime_validator
@@ -133,10 +134,7 @@ class Events:
     async def on_edit_order(callback: CallbackQuery, widget, manager: DialogManager):
         await manager.start(
             CreateOrderSG.first,
-            data={
-                "intent": "edit_order",
-                "input": CreateOrderStartData(callback.from_user.id)
-            },
+            data={"intent": "edit_order", "input": CreateOrderStartData(callback.from_user.id)},
             show_mode=ShowMode.SEND,
         )
 
@@ -164,7 +162,9 @@ class Events:
             case "edit_description":
                 if result is not None:
                     if result == "":
-                        await client.remove_task_parameters(RemoveTaskParametersBody(id=task_id, description=True), user_id)
+                        await client.remove_task_parameters(
+                            RemoveTaskParametersBody(id=task_id, description=True), user_id
+                        )
                     else:
                         await client.modify_task(ModifyTaskBody(id=task_id, description=result), user_id)
                     await Loader.load_task_info(manager)

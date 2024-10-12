@@ -1,7 +1,11 @@
 from aiogram_dialog import ShowMode, DialogManager, Dialog, Window
 
-from src.bot.dialogs.dialog_communications import PromptDialogStartData, CreateManualTaskForm, CreateOrderStartData, \
-    CreateTaskStartData
+from src.bot.dialogs.dialog_communications import (
+    PromptDialogStartData,
+    CreateManualTaskForm,
+    CreateOrderStartData,
+    CreateTaskStartData,
+)
 from src.bot.dialogs.states import PromptSG, CreateManualTaskSG, CreateOrderSG
 
 
@@ -49,10 +53,7 @@ class Events:
                 form.period = result
                 await manager.start(
                     CreateOrderSG.first,
-                    data={
-                        "intent": "create_order",
-                        "input": CreateOrderStartData(manager.dialog_data["user_id"])
-                    },
+                    data={"intent": "create_order", "input": CreateOrderStartData(manager.dialog_data["user_id"])},
                     show_mode=ShowMode.SEND,
                 )
             case "create_order":

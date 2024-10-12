@@ -18,7 +18,8 @@ from src.api.schemas.method_output_schemas import (
 from src.bot.dialogs.dialog_communications import (
     TaskViewDialogStartData,
     ConfirmationDialogStartData,
-    PromptDialogStartData, CreateOrderStartData,
+    PromptDialogStartData,
+    CreateOrderStartData,
 )
 from src.bot.dialogs.states import ManualTaskViewSG, ConfirmationSG, PromptSG, CreateOrderSG
 
@@ -117,10 +118,7 @@ class Events:
     async def on_edit_order(callback: CallbackQuery, widget, manager: DialogManager):
         await manager.start(
             CreateOrderSG.first,
-            data={
-                "intent": "edit_order",
-                "input": CreateOrderStartData(callback.from_user.id)
-            },
+            data={"intent": "edit_order", "input": CreateOrderStartData(callback.from_user.id)},
             show_mode=ShowMode.SEND,
         )
 
@@ -210,7 +208,7 @@ manual_task_view_dialog = Dialog(
                             selector=lambda data, w, m: data["data"]["current_index"] == data["pos0"],
                         ),
                         items="executors",
-                    )
+                    ),
                 ),
             },
             selector=lambda data, w, m: bool(data["executors"]),

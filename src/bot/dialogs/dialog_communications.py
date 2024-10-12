@@ -101,5 +101,5 @@ __all__ = [
     "CreateRuleForm",
     "CreateManualTaskForm",
     "CreateTaskStartData",
-    "CreateOrderStartData"
+    "CreateOrderStartData",
 ]
