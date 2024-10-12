@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, Window, DialogManager, ShowMode
 from aiogram_dialog.widgets.kbd import Cancel, Row, Button
-from aiogram_dialog.widgets.text import Format, Const, List, Multi, Jinja, Case
+from aiogram_dialog.widgets.text import Format, Const, List, Jinja, Case, Multi
 
 from src.api import client
 from src.api.schemas.method_input_schemas import ModifyManualTaskBody, RemoveManualTaskParametersBody
@@ -26,9 +26,10 @@ from src.bot.dialogs.states import ManualTaskViewSG, ConfirmationSG, PromptSG, C
 class MainWindowConsts:
     TASK_VIEW_FORMAT = "Name: {task.name}"
     DESCRIPTION_FORMAT = "Description: {task.description}"
-    ORDER_HEADER = "Order:"
+    ORDER_HEADER = "Order: "
     ORDER_ITEM_FORMAT = "{pos}) {item.fullname}"
     ORDER_CURRENT_ITEM_FORMAT = "<u>{{pos}}) {{item.fullname}}</u>"
+    MISSING_ORDER_TEXT = "none selected"
 
     NAME_INPUT_PATTERN = re.compile(r".+")
     DESCRIPTION_INPUT_PATTERN = re.compile(r".+(?:\n\r?.+)*")
@@ -195,19 +196,24 @@ manual_task_view_dialog = Dialog(
     Window(
         Format(MainWindowConsts.TASK_VIEW_FORMAT),
         Format(MainWindowConsts.DESCRIPTION_FORMAT, when=lambda data, w, m: data["task"].description),
-        Multi(
-            Const(MainWindowConsts.ORDER_HEADER),
-            List(
-                Case(
-                    {
-                        False: Format(MainWindowConsts.ORDER_ITEM_FORMAT),
-                        True: Jinja(MainWindowConsts.ORDER_CURRENT_ITEM_FORMAT),
-                    },
-                    selector=lambda data, w, m: data["data"]["current_index"] == data["pos0"],
+        Case(
+            {
+                False: Const(MainWindowConsts.ORDER_HEADER + MainWindowConsts.MISSING_ORDER_TEXT),
+                True: Multi(
+                    Const(MainWindowConsts.ORDER_HEADER),
+                    List(
+                        Case(
+                            {
+                                False: Format(MainWindowConsts.ORDER_ITEM_FORMAT),
+                                True: Jinja(MainWindowConsts.ORDER_CURRENT_ITEM_FORMAT),
+                            },
+                            selector=lambda data, w, m: data["data"]["current_index"] == data["pos0"],
+                        ),
+                        items="executors",
+                    )
                 ),
-                items="executors",
-            ),
-            when="executors",
+            },
+            selector=lambda data, w, m: bool(data["executors"]),
         ),
         Row(
             Button(

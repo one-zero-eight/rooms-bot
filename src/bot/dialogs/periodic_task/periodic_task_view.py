@@ -5,7 +5,7 @@ from datetime import datetime
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, Window, DialogManager, ShowMode
 from aiogram_dialog.widgets.kbd import Cancel, Row, Button
-from aiogram_dialog.widgets.text import Format, Const, List, Multi
+from aiogram_dialog.widgets.text import Format, Const, List, Case, Multi
 
 from src.api import client
 from src.api.schemas.method_input_schemas import ModifyTaskBody, RemoveTaskParametersBody
@@ -25,8 +25,9 @@ Start date: {task.start_date_repr}
 Period (in days): {task.period}"""
     DESCRIPTION_FORMAT = "Description: {task.description}"
     DATE_FORMAT = "%d.%m.%Y %H:%M"
-    ORDER_HEADER = "Order:"
+    ORDER_HEADER = "Order: "
     ORDER_ITEM_FORMAT = "{pos}) {item.fullname}"
+    MISSING_ORDER_TEXT = "none selected"
 
     NAME_INPUT_PATTERN = re.compile(r".+")
     DESCRIPTION_INPUT_PATTERN = re.compile(r".+(?:\n\r?.+)*")
@@ -207,13 +208,18 @@ periodic_task_view_dialog = Dialog(
     Window(
         Format(MainWindowConsts.TASK_VIEW_FORMAT),
         Format(MainWindowConsts.DESCRIPTION_FORMAT, when=lambda data, w, m: data["task"].description),
-        Multi(
-            Const(MainWindowConsts.ORDER_HEADER),
-            List(
-                Format(MainWindowConsts.ORDER_ITEM_FORMAT),
-                items="executors",
-            ),
-            when="executors",
+        Case(
+            {
+                False: Const(MainWindowConsts.ORDER_HEADER + MainWindowConsts.MISSING_ORDER_TEXT),
+                True: Multi(
+                    Const(MainWindowConsts.ORDER_HEADER),
+                    List(
+                        Format(MainWindowConsts.ORDER_ITEM_FORMAT),
+                        items="executors",
+                    ),
+                ),
+            },
+            selector=lambda data, w, m: bool(data["executors"]),
         ),
         Row(
             Button(
