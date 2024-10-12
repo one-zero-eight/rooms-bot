@@ -80,6 +80,17 @@ class CreateManualTaskForm:
     order_id: int | None = None
 
 
+@dataclass
+class CreateTaskStartData:
+    user_id: int
+
+
+@dataclass
+class CreateOrderStartData:
+    user_id: int
+    allow_none: bool = True
+
+
 __all__ = [
     "RoomDialogStartData",
     "ConfirmationDialogStartData",
@@ -88,4 +99,7 @@ __all__ = [
     "PromptDialogStartData",
     "CreatePeriodicTaskForm",
     "CreateRuleForm",
+    "CreateManualTaskForm",
+    "CreateTaskStartData",
+    "CreateOrderStartData"
 ]

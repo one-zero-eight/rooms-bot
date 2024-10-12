@@ -13,9 +13,9 @@ from src.api.schemas.method_output_schemas import UserInfo, TaskInfoResponse
 from src.bot.dialogs.dialog_communications import (
     TaskViewDialogStartData,
     ConfirmationDialogStartData,
-    PromptDialogStartData,
+    PromptDialogStartData, CreateOrderStartData,
 )
-from src.bot.dialogs.states import PeriodicTaskViewSG, ConfirmationSG, PromptSG, OrderSelectionSG
+from src.bot.dialogs.states import PeriodicTaskViewSG, ConfirmationSG, PromptSG, CreateOrderSG
 from src.bot.utils import parse_datetime, datetime_validator
 
 
@@ -130,7 +130,14 @@ class Events:
 
     @staticmethod
     async def on_edit_order(callback: CallbackQuery, widget, manager: DialogManager):
-        await manager.start(OrderSelectionSG.select, data={"intent": "edit_order"})
+        await manager.start(
+            CreateOrderSG.first,
+            data={
+                "intent": "edit_order",
+                "input": CreateOrderStartData(callback.from_user.id)
+            },
+            show_mode=ShowMode.SEND,
+        )
 
     @staticmethod
     async def on_process_result(
@@ -141,43 +148,49 @@ class Events:
 
         task_id = manager.dialog_data["task_id"]
         user_id = manager.event.from_user.id
-        if start_data["intent"] == "delete":
-            if result:
-                await client.delete_task(task_id, user_id)
-                await manager.done(show_mode=ShowMode.SEND)
-                return
-            await manager.show(ShowMode.SEND)
-        elif start_data["intent"] == "edit_name":
-            if result is not None:
-                await client.modify_task(ModifyTaskBody(id=task_id, name=result), user_id)
-                await Loader.load_task_info(manager)
-            await manager.show(ShowMode.SEND)
-        elif start_data["intent"] == "edit_description":
-            if result is not None:
-                if result == "":
-                    await client.remove_task_parameters(RemoveTaskParametersBody(id=task_id, description=True), user_id)
-                else:
-                    await client.modify_task(ModifyTaskBody(id=task_id, description=result), user_id)
-                await Loader.load_task_info(manager)
-            await manager.show(ShowMode.SEND)
-        elif start_data["intent"] == "edit_start_date":
-            if result is not None:
-                await client.modify_task(ModifyTaskBody(id=task_id, start_date=parse_datetime(result)), user_id)
-                await Loader.load_task_info(manager)
-            await manager.show(ShowMode.SEND)
-        elif start_data["intent"] == "edit_period":
-            if result is not None:
-                await client.modify_task(ModifyTaskBody(id=task_id, period=result), user_id)
-                await Loader.load_task_info(manager)
-            await manager.show(ShowMode.SEND)
-        elif start_data["intent"] == "edit_order":
-            if result[0]:
+        match start_data["intent"]:
+            case "delete":
+                if result:
+                    await client.delete_task(task_id, user_id)
+                    await manager.done(show_mode=ShowMode.SEND)
+                    return
+                await manager.show(ShowMode.SEND)
+            case "edit_name":
+                if result is not None:
+                    await client.modify_task(ModifyTaskBody(id=task_id, name=result), user_id)
+                    await Loader.load_task_info(manager)
+                await manager.show(ShowMode.SEND)
+            case "edit_description":
+                if result is not None:
+                    if result == "":
+                        await client.remove_task_parameters(RemoveTaskParametersBody(id=task_id, description=True), user_id)
+                    else:
+                        await client.modify_task(ModifyTaskBody(id=task_id, description=result), user_id)
+                    await Loader.load_task_info(manager)
+                await manager.show(ShowMode.SEND)
+            case "edit_start_date":
+                if result is not None:
+                    await client.modify_task(ModifyTaskBody(id=task_id, start_date=parse_datetime(result)), user_id)
+                    await Loader.load_task_info(manager)
+                await manager.show(ShowMode.SEND)
+            case "edit_period":
+                if result is not None:
+                    await client.modify_task(ModifyTaskBody(id=task_id, period=result), user_id)
+                    await Loader.load_task_info(manager)
+                await manager.show(ShowMode.SEND)
+            case "edit_order":
+                if not result[0]:
+                    await manager.show(ShowMode.SEND)
+                    return
+                old_order_id = manager.dialog_data["task"].order_id
+                if old_order_id is not None:
+                    await client.delete_order(old_order_id, user_id)
                 if result[1] is None:
                     await client.remove_task_parameters(RemoveTaskParametersBody(id=task_id, order_id=True), user_id)
                 else:
                     await client.modify_task(ModifyTaskBody(id=task_id, order_id=result[1]), user_id)
                 await Loader.load_task_info(manager)
-                await manager.show(ShowMode.EDIT)
+                await manager.show(ShowMode.SEND)
 
 
 async def getter(dialog_manager: DialogManager, **kwargs):

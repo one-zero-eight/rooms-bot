@@ -8,7 +8,7 @@ from aiogram_dialog.widgets.text import Const, Format
 from src.api import client
 from src.api.schemas.method_input_schemas import CreateManualTaskBody
 from src.api.schemas.method_output_schemas import ManualTaskInfo
-from src.bot.dialogs.dialog_communications import CreateManualTaskForm, TaskViewDialogStartData
+from src.bot.dialogs.dialog_communications import CreateManualTaskForm, TaskViewDialogStartData, CreateTaskStartData
 from src.bot.dialogs.states import ManualTasksSG, CreateManualTaskSG, ManualTaskViewSG
 from src.bot.utils import select_finder
 
@@ -55,6 +55,7 @@ class Events:
         await manager.start(
             data={
                 "intent": "create_task",
+                "input": CreateTaskStartData(callback.from_user.id),
             },
             state=CreateManualTaskSG.main,
             show_mode=ShowMode.SEND,
@@ -70,7 +71,8 @@ class Events:
                 return
             form: CreateManualTaskForm = result[1]
             await client.create_manual_task(CreateManualTaskBody(**asdict(form)), manager.event.from_user.id)
-            # no update is required because on_process happens before the dialog is re-rendered
+            await manager.event.bot.send_message(manager.event.message.chat.id, "Created")
+            # no update is required because on_process_result happens before the dialog is re-rendered
 
         await Loader.load_tasks(manager)
 

@@ -25,10 +25,6 @@ class ConfirmationSG(StatesGroup):
     main = State()
 
 
-class OrderSelectionSG(StatesGroup):
-    select = State()
-
-
 class OutgoingInvitationsSG(StatesGroup):
     list = State()
     invite = State()
@@ -79,7 +75,6 @@ __all__ = [
     "IncomingInvitationsSG",
     "ConfirmationSG",
     "OutgoingInvitationsSG",
-    "OrderSelectionSG",
     "PeriodicTasksSG",
     "PeriodicTaskViewSG",
     "CreatePeriodicTaskSG",

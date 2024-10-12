@@ -18,9 +18,9 @@ from src.api.schemas.method_output_schemas import (
 from src.bot.dialogs.dialog_communications import (
     TaskViewDialogStartData,
     ConfirmationDialogStartData,
-    PromptDialogStartData,
+    PromptDialogStartData, CreateOrderStartData,
 )
-from src.bot.dialogs.states import ManualTaskViewSG, ConfirmationSG, PromptSG, OrderSelectionSG
+from src.bot.dialogs.states import ManualTaskViewSG, ConfirmationSG, PromptSG, CreateOrderSG
 
 
 class MainWindowConsts:
@@ -114,7 +114,14 @@ class Events:
 
     @staticmethod
     async def on_edit_order(callback: CallbackQuery, widget, manager: DialogManager):
-        await manager.start(OrderSelectionSG.select, data={"intent": "edit_order"})
+        await manager.start(
+            CreateOrderSG.first,
+            data={
+                "intent": "edit_order",
+                "input": CreateOrderStartData(callback.from_user.id)
+            },
+            show_mode=ShowMode.SEND,
+        )
 
     @staticmethod
     async def on_process_result(
@@ -148,15 +155,20 @@ class Events:
                     await Loader.load_task_info(manager)
                 await manager.show(ShowMode.SEND)
             case "edit_order":
-                if result[0]:
-                    if result[1] is None:
-                        await client.remove_manual_task_parameters(
-                            RemoveManualTaskParametersBody(id=task_id, order_id=True), user_id
-                        )
-                    else:
-                        await client.modify_manual_task(ModifyManualTaskBody(id=task_id, order_id=result[1]), user_id)
-                    await Loader.load_task_info(manager)
-                    await manager.show(ShowMode.EDIT)
+                if not result[0]:
+                    await manager.show(ShowMode.SEND)
+                    return
+                old_order_id = manager.dialog_data["task"].order_id
+                if old_order_id is not None:
+                    await client.delete_order(old_order_id, user_id)
+                if result[1] is None:
+                    await client.remove_manual_task_parameters(
+                        RemoveManualTaskParametersBody(id=task_id, order_id=True), user_id
+                    )
+                else:
+                    await client.modify_manual_task(ModifyManualTaskBody(id=task_id, order_id=result[1]), user_id)
+                await Loader.load_task_info(manager)
+                await manager.show(ShowMode.SEND)
 
     @staticmethod
     async def on_do_task(callback: CallbackQuery, widget, manager: DialogManager):

@@ -1,12 +1,15 @@
 from aiogram_dialog import ShowMode, DialogManager, Dialog, Window
 
-from src.bot.dialogs.dialog_communications import PromptDialogStartData, CreateManualTaskForm
-from src.bot.dialogs.states import PromptSG, CreateManualTaskSG, OrderSelectionSG
+from src.bot.dialogs.dialog_communications import PromptDialogStartData, CreateManualTaskForm, CreateOrderStartData, \
+    CreateTaskStartData
+from src.bot.dialogs.states import PromptSG, CreateManualTaskSG, CreateOrderSG
 
 
 class Events:
     @staticmethod
     async def on_start(start_data: dict, manager: DialogManager):
+        start_data: CreateTaskStartData = start_data["input"]
+        manager.dialog_data["user_id"] = start_data.user_id
         manager.dialog_data["form"] = CreateManualTaskForm()
         await manager.start(
             PromptSG.main,
@@ -22,7 +25,7 @@ class Events:
         await manager.done((False, None), ShowMode.SEND)
 
     @staticmethod
-    async def on_process_result(start_data: dict, result: str | None, manager: DialogManager):
+    async def on_process_result(start_data: dict, result: str | int | None, manager: DialogManager):
         form: CreateManualTaskForm = manager.dialog_data["form"]
         # noinspection DuplicatedCode
         match start_data["intent"]:
@@ -45,18 +48,18 @@ class Events:
                     return
                 form.period = result
                 await manager.start(
-                    OrderSelectionSG.select,
+                    CreateOrderSG.first,
                     data={
-                        "intent": "select_order",
+                        "intent": "create_order",
+                        "input": CreateOrderStartData(manager.dialog_data["user_id"])
                     },
                     show_mode=ShowMode.SEND,
                 )
-            case "select_order":
+            case "create_order":
                 if not result[0]:
                     await Events._cancel(manager)
                     return
                 form.order_id = result[1]
-                await manager.event.bot.send_message(manager.event.message.chat.id, "Created")
                 await manager.done((True, form), ShowMode.SEND)
 
 
