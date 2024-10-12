@@ -87,4 +87,5 @@ __all__ = [
     "TaskViewDialogStartData",
     "PromptDialogStartData",
     "CreatePeriodicTaskForm",
+    "CreateRuleForm",
 ]

@@ -19,7 +19,7 @@ async def getter(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def on_select(callback: CallbackQuery, select, manager: DialogManager, item_id: str):
+async def on_select(callback: CallbackQuery, widget, manager: DialogManager, item_id: str):
     confirmation: ConfirmationDialogStartData = manager.dialog_data["confirmation"]
     confirmed = item_id == confirmation.yes_button
     answer = confirmation.yes_message if confirmed else confirmation.no_message

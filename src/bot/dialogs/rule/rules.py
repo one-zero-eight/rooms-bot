@@ -6,8 +6,8 @@ from aiogram_dialog.widgets.text import Format, Const, Jinja
 from src.api import client
 from src.api.schemas.method_input_schemas import CreateRuleBody
 from src.api.schemas.method_output_schemas import RuleInfo
-from src.bot.dialogs.dialog_communications import CreateRuleForm
-from src.bot.dialogs.states import RulesSG, CreateRuleSG
+from src.bot.dialogs.dialog_communications import CreateRuleForm, ConfirmationDialogStartData
+from src.bot.dialogs.states import RulesSG, CreateRuleSG, ConfirmationSG
 from src.bot.utils import select_finder
 
 
@@ -15,10 +15,12 @@ class RulesWindowConsts:
     HEADER_TEXT = "Rules:\n"
     NEW_RULE_BUTTON_TEXT = "Add a new rule"
     RULE_FORMAT = "<b>{{rule.name}}</b>\n\n{{rule.text}}"
+    DELETE_RULE_BUTTON_TEXT = "Delete"
 
     BACK_BUTTON_ID = "back_button"
     NEW_RULE_BUTTON_ID = "new_rule_button"
     RULE_SELECT_ID = "rule_select"
+    DELETE_RULE_BUTTON_ID = "delete_button"
 
 
 class Loader:
@@ -44,10 +46,19 @@ class Events:
     @staticmethod
     async def on_create_rule(callback: CallbackQuery, widget, manager: DialogManager):
         await manager.start(
-            data={
-                "intent": "create_rule",
-            },
+            data={"intent": "create_rule"},
             state=CreateRuleSG.main,
+            show_mode=ShowMode.SEND,
+        )
+
+    @staticmethod
+    async def on_delete_rule(callback: CallbackQuery, widget, manager: DialogManager):
+        await manager.start(
+            data={
+                "intent": "delete_rule",
+                "input": ConfirmationDialogStartData("delete the rule", yes_message="The rule has been deleted"),
+            },
+            state=ConfirmationSG.main,
             show_mode=ShowMode.SEND,
         )
 
@@ -64,6 +75,18 @@ class Events:
             await client.create_rule(CreateRuleBody(name=form.name, text=form.text), manager.event.from_user.id)
             await Loader.load_rules(manager)
             # no update is required because on_process happens before the dialog is re-rendered
+        elif start_data["intent"] == "delete_rule":
+            if result:
+                user_id = manager.event.from_user.id
+                rule: RuleInfo = manager.dialog_data["current_rule"]
+                await client.delete_rule(rule.id, user_id)
+                await Loader.load_rules(manager)
+                # Here aiogram-dialog only changes an internal state variable.
+                # To redraw (send) message, an explicit show() is required.
+                await manager.switch_to(RulesSG.list)
+                await manager.show(ShowMode.SEND)
+                return
+            await manager.show(ShowMode.SEND)
 
 
 async def list_getter(dialog_manager: DialogManager, **kwargs):
@@ -109,6 +132,11 @@ rules_dialog = Dialog(
     # View rule
     Window(
         Jinja(RulesWindowConsts.RULE_FORMAT),
+        Button(
+            Const(RulesWindowConsts.DELETE_RULE_BUTTON_TEXT),
+            id=RulesWindowConsts.DELETE_RULE_BUTTON_ID,
+            on_click=Events.on_delete_rule,
+        ),
         SwitchTo(
             Const("◀️ Back"),
             id=RulesWindowConsts.BACK_BUTTON_ID,
