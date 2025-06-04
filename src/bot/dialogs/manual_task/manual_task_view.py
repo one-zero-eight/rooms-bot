@@ -9,10 +9,10 @@ from aiogram_dialog.widgets.text import Format, Const, List, Jinja, Case, Multi
 from src.api import client
 from src.api.schemas.method_input_schemas import ModifyManualTaskBody, RemoveManualTaskParametersBody
 from src.api.schemas.method_output_schemas import (
+    TaskCurrent,
     UserInfo,
     ManualTaskInfoResponse,
     OrderInfoResponse,
-    ManualTaskCurrentResponse,
 )
 from src.bot.dialogs.dialog_communications import (
     TaskViewDialogStartData,
@@ -68,7 +68,7 @@ class Loader:
         else:
             order_data: OrderInfoResponse = await client.get_order_info(task_data.order_id, user_id)
             manager.dialog_data["executors"] = order_data.users
-            current: ManualTaskCurrentResponse = await client.get_manual_task_current_executor(task_id, user_id)
+            current: TaskCurrent | None = await client.get_manual_task_current_executor(task_id, user_id)
             manager.dialog_data["current_executor"] = current
 
 
@@ -179,7 +179,9 @@ class Events:
 
     @staticmethod
     async def on_remind(callback: CallbackQuery, widget, manager: DialogManager):
-        current_executor: ManualTaskCurrentResponse = manager.dialog_data["current_executor"]
+        current_executor: TaskCurrent | None = manager.dialog_data["current_executor"]
+        if current_executor is None:
+            return
         task: ManualTaskInfoResponse = manager.dialog_data["task"]
         await callback.bot.send_message(
             current_executor.user.id, f'{callback.from_user.full_name} reminds you about your duty in "{task.name}"'
@@ -189,7 +191,7 @@ class Events:
 async def getter(dialog_manager: DialogManager, **kwargs):
     task: ManualTaskInfoResponse = dialog_manager.dialog_data["task"]
     executors: list[UserInfo] = dialog_manager.dialog_data["executors"]
-    current_index = executors and dialog_manager.dialog_data["current_executor"].number
+    current_index = current.number if (current := dialog_manager.dialog_data["current_executor"]) else None
 
     return {
         "task": TaskRepresentation(task.name, task.description),

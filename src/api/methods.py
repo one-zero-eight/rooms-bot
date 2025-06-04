@@ -166,10 +166,10 @@ class InNoHassleMusicRoomAPI:
     async def do_manual_task(self, task_id: int, user_id: int) -> None:
         return await self._post("/bot/manual_task/do", user_id, task_id=task_id)
 
-    async def get_manual_task_current_executor(self, task_id: int, user_id: int) -> ManualTaskCurrentResponse:
+    async def get_manual_task_current_executor(self, task_id: int, user_id: int) -> TaskCurrent | None:
         return ManualTaskCurrentResponse.model_validate(
             await self._post("/bot/manual_task/current_executor", user_id, task_id=task_id)
-        )
+        ).current
 
     async def get_task_current_executor(self, task_id: int, user_id: int) -> TaskCurrent | None:
         return TaskCurrentResponse.model_validate(

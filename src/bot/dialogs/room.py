@@ -122,11 +122,19 @@ class Loader:
 async def getter(dialog_manager: DialogManager, **kwargs):
     room_info: RoomDialogStartData = dialog_manager.dialog_data["room_info"]
     daily_info: DailyInfoResponse = dialog_manager.dialog_data["daily_info"]
+    user_info: dict[int, UserInfo] = daily_info.user_info
     roommates: list[UserInfo] = dialog_manager.dialog_data.get("roommates", [])
     return {
         "room_id": room_info.id,
         "room_name": room_info.name,
-        "duties": [(t.name, t.today_executor.fullname) for t in daily_info.tasks],
+        "periodic_tasks": [
+            (t.name, user_info[t.today_executor].fullname if t.today_executor in user_info else str(t.today_executor))
+            for t in daily_info.periodic_tasks
+        ],
+        "manual_tasks": [
+            (t.name, user_info[t.today_executor].fullname if t.today_executor in user_info else str(t.today_executor))
+            for t in daily_info.manual_tasks
+        ],
         "roommates": roommates,
     }
 
@@ -135,10 +143,14 @@ room_dialog = Dialog(
     # Main page
     Window(
         Format("Your room: {room_name}\n"),
-        Const("Today duties:"),
+        Const("Current duties:"),
         List(
             Format("- {item[0]}: {item[1]}"),
-            items="duties",
+            items="periodic_tasks",
+        ),
+        List(
+            Format("- {item[0]}: {item[1]}"),
+            items="manual_tasks",
         ),
         Row(
             Button(
