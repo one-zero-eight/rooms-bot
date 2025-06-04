@@ -10,7 +10,6 @@ from src.api import client
 from src.api.schemas.method_input_schemas import ModifyManualTaskBody, RemoveManualTaskParametersBody
 from src.api.schemas.method_output_schemas import (
     UserInfo,
-    TaskInfoResponse,
     ManualTaskInfoResponse,
     OrderInfoResponse,
     ManualTaskCurrentResponse,
@@ -181,14 +180,14 @@ class Events:
     @staticmethod
     async def on_remind(callback: CallbackQuery, widget, manager: DialogManager):
         current_executor: ManualTaskCurrentResponse = manager.dialog_data["current_executor"]
-        task: TaskInfoResponse = manager.dialog_data["task"]
+        task: ManualTaskInfoResponse = manager.dialog_data["task"]
         await callback.bot.send_message(
             current_executor.user.id, f'{callback.from_user.full_name} reminds you about your duty in "{task.name}"'
         )
 
 
 async def getter(dialog_manager: DialogManager, **kwargs):
-    task: TaskInfoResponse = dialog_manager.dialog_data["task"]
+    task: ManualTaskInfoResponse = dialog_manager.dialog_data["task"]
     executors: list[UserInfo] = dialog_manager.dialog_data["executors"]
     current_index = executors and dialog_manager.dialog_data["current_executor"].number
 
@@ -251,14 +250,13 @@ manual_task_view_dialog = Dialog(
                 Const("Do task"),
                 id=MainWindowConsts.DO_BUTTON_ID,
                 on_click=Events.on_do_task,
-                when=lambda data, w, m: data["executors"],
             ),
             Button(
                 Const("Remind"),
                 id=MainWindowConsts.REMIND_BUTTON_ID,
                 on_click=Events.on_remind,
-                when=lambda data, w, m: data["executors"],
             ),
+            when=lambda data, w, m: data["current_index"] is not None,
         ),
         Cancel(
             Const("◀️ Back"),

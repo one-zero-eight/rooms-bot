@@ -45,6 +45,7 @@ Period (in days): {task.period}"""
     EDIT_PERIOD_BUTTON_ID = "edit_period_button"
     EDIT_ORDER_BUTTON_ID = "edit_order_button"
     DELETE_BUTTON_ID = "delete_button"
+    REMIND_BUTTON_ID = "remind_button"
 
 
 @dataclass
@@ -197,11 +198,21 @@ class Events:
                 await Loader.load_task_info(manager)
                 await manager.show(ShowMode.SEND)
 
+    @staticmethod
+    async def on_remind(callback: CallbackQuery, widget, manager: DialogManager):
+        current_executor: TaskCurrent | None = manager.dialog_data["current_executor"]
+        if current_executor is None:
+            return
+        task: TaskInfoResponse = manager.dialog_data["task"]
+        await callback.bot.send_message(
+            current_executor.user.id, f'{callback.from_user.full_name} reminds you about your duty in "{task.name}"'
+        )
+
 
 async def getter(dialog_manager: DialogManager, **kwargs):
     task: TaskInfoResponse = dialog_manager.dialog_data["task"]
     executors: list[UserInfo] = dialog_manager.dialog_data["executors"]
-    current_index = current.number if (current := dialog_manager.dialog_data["current_executor"]) else -1
+    current_index = current.number if (current := dialog_manager.dialog_data["current_executor"]) else None
 
     return {
         "task": TaskRepresentation(task.name, task.description, task.start_date, task.period),
@@ -268,6 +279,12 @@ periodic_task_view_dialog = Dialog(
                 id=MainWindowConsts.EDIT_ORDER_BUTTON_ID,
                 on_click=Events.on_edit_order,
             ),
+        ),
+        Button(
+            Const("Remind"),
+            id=MainWindowConsts.REMIND_BUTTON_ID,
+            on_click=Events.on_remind,
+            when=lambda data, w, m: data["current_index"] is not None,
         ),
         Cancel(Const("◀️ Back"), MainWindowConsts.BACK_BUTTON_ID),
         parse_mode="HTML",
