@@ -45,6 +45,7 @@ class MainWindowConsts:
     EDIT_ORDER_BUTTON_ID = "edit_order_button"
     DELETE_BUTTON_ID = "delete_button"
     DO_BUTTON_ID = "do_button"
+    REMIND_BUTTON_ID = "remind_button"
 
 
 @dataclass
@@ -177,6 +178,14 @@ class Events:
         await Loader.load_task_info(manager)
         await manager.show()
 
+    @staticmethod
+    async def on_remind(callback: CallbackQuery, widget, manager: DialogManager):
+        current_executor: ManualTaskCurrentResponse = manager.dialog_data["current_executor"]
+        task: TaskInfoResponse = manager.dialog_data["task"]
+        await callback.bot.send_message(
+            current_executor.user.id, f'{callback.from_user.full_name} reminds you about your duty in "{task.name}"'
+        )
+
 
 async def getter(dialog_manager: DialogManager, **kwargs):
     task: TaskInfoResponse = dialog_manager.dialog_data["task"]
@@ -237,11 +246,19 @@ manual_task_view_dialog = Dialog(
                 on_click=Events.on_edit_order,
             ),
         ),
-        Button(
-            Const("Do task"),
-            id=MainWindowConsts.DO_BUTTON_ID,
-            on_click=Events.on_do_task,
-            when=lambda data, w, m: data["executors"],
+        Row(
+            Button(
+                Const("Do task"),
+                id=MainWindowConsts.DO_BUTTON_ID,
+                on_click=Events.on_do_task,
+                when=lambda data, w, m: data["executors"],
+            ),
+            Button(
+                Const("Remind"),
+                id=MainWindowConsts.REMIND_BUTTON_ID,
+                on_click=Events.on_remind,
+                when=lambda data, w, m: data["executors"],
+            ),
         ),
         Cancel(
             Const("◀️ Back"),
