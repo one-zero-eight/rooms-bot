@@ -13,6 +13,8 @@ from src.api.schemas.method_output_schemas import (
     DailyInfoResponse,
     IncomingInvitationInfo,
     RoomInfoResponse,
+    TaskCurrent,
+    TaskCurrentResponse,
     TaskInfoResponse,
     SentInvitationInfo,
     TaskInfo,
@@ -168,3 +170,8 @@ class InNoHassleMusicRoomAPI:
         return ManualTaskCurrentResponse.model_validate(
             await self._post("/bot/manual_task/current_executor", user_id, task_id=task_id)
         )
+
+    async def get_task_current_executor(self, task_id: int, user_id: int) -> TaskCurrent | None:
+        return TaskCurrentResponse.model_validate(
+            await self._post("/bot/task/current_executor", user_id, task_id=task_id)
+        ).current

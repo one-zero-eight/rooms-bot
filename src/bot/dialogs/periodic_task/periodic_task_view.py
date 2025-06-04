@@ -5,11 +5,11 @@ from datetime import datetime
 from aiogram.types import CallbackQuery
 from aiogram_dialog import Dialog, Window, DialogManager, ShowMode
 from aiogram_dialog.widgets.kbd import Cancel, Row, Button
-from aiogram_dialog.widgets.text import Format, Const, List, Case, Multi
+from aiogram_dialog.widgets.text import Format, Const, Jinja, List, Case, Multi
 
 from src.api import client
 from src.api.schemas.method_input_schemas import ModifyTaskBody, RemoveTaskParametersBody
-from src.api.schemas.method_output_schemas import UserInfo, TaskInfoResponse
+from src.api.schemas.method_output_schemas import TaskCurrent, UserInfo, TaskInfoResponse
 from src.bot.dialogs.dialog_communications import (
     TaskViewDialogStartData,
     ConfirmationDialogStartData,
@@ -28,6 +28,7 @@ Period (in days): {task.period}"""
     DATE_FORMAT = "%d.%m.%Y %H:%M"
     ORDER_HEADER = "Order: "
     ORDER_ITEM_FORMAT = "{pos}) {item.fullname}"
+    ORDER_CURRENT_ITEM_FORMAT = "<u>{{pos}}) {{item.fullname}}</u>"
     MISSING_ORDER_TEXT = "none selected"
 
     NAME_INPUT_PATTERN = re.compile(r".+")
@@ -69,9 +70,12 @@ class Loader:
 
         if task_data.order_id is None:
             manager.dialog_data["executors"] = None
+            manager.dialog_data["current_executor"] = None
         else:
             order_data = await client.get_order_info(task_data.order_id, user_id)
             manager.dialog_data["executors"] = order_data.users
+            current: TaskCurrent | None = await client.get_task_current_executor(task_id, user_id)
+            manager.dialog_data["current_executor"] = current
 
 
 class Events:
@@ -197,10 +201,12 @@ class Events:
 async def getter(dialog_manager: DialogManager, **kwargs):
     task: TaskInfoResponse = dialog_manager.dialog_data["task"]
     executors: list[UserInfo] = dialog_manager.dialog_data["executors"]
+    current_index = current.number if (current := dialog_manager.dialog_data["current_executor"]) else -1
 
     return {
         "task": TaskRepresentation(task.name, task.description, task.start_date, task.period),
         "executors": executors,
+        "current_index": current_index,
     }
 
 
@@ -214,7 +220,13 @@ periodic_task_view_dialog = Dialog(
                 True: Multi(
                     Const(MainWindowConsts.ORDER_HEADER),
                     List(
-                        Format(MainWindowConsts.ORDER_ITEM_FORMAT),
+                        Case(
+                            {
+                                False: Format(MainWindowConsts.ORDER_ITEM_FORMAT),
+                                True: Jinja(MainWindowConsts.ORDER_CURRENT_ITEM_FORMAT),
+                            },
+                            selector=lambda data, w, m: data["data"]["current_index"] == data["pos0"],
+                        ),
                         items="executors",
                     ),
                 ),
@@ -258,6 +270,7 @@ periodic_task_view_dialog = Dialog(
             ),
         ),
         Cancel(Const("◀️ Back"), MainWindowConsts.BACK_BUTTON_ID),
+        parse_mode="HTML",
         state=PeriodicTaskViewSG.main,
         getter=getter,
     ),

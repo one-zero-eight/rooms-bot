@@ -103,3 +103,12 @@ class ManualTaskInfoResponse(BaseModel):
 class ManualTaskCurrentResponse(BaseModel):
     number: int
     user: UserInfo
+
+
+class TaskCurrent(BaseModel):
+    number: int
+    user: UserInfo
+
+
+class TaskCurrentResponse(BaseModel):
+    current: TaskCurrent | None
