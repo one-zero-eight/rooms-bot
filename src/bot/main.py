@@ -17,7 +17,7 @@ from src.bot.start_message import start_message_handler
 
 async def main():
     logging.basicConfig(level=logging.INFO)
-    
+
     if get_settings().TELEGRAM_PROXY_URL:
         logging.info("Using proxy")
         session = AiohttpSession(proxy=get_settings().TELEGRAM_PROXY_URL)
