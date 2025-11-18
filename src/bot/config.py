@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     BOT_TOKEN: str
     API_URL: str
     API_SECRET: str
+    TELEGRAM_PROXY_URL: str | None = None
 
     def __init__(self):
         super().__init__(_env_file=None)

@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher, F
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.filters import CommandStart, ExceptionTypeFilter
 from aiogram.types import ErrorEvent, CallbackQuery
 from aiogram_dialog import setup_dialogs
@@ -16,8 +17,14 @@ from src.bot.start_message import start_message_handler
 
 async def main():
     logging.basicConfig(level=logging.INFO)
+    
+    if get_settings().TELEGRAM_PROXY_URL:
+        logging.info("Using proxy")
+        session = AiohttpSession(proxy=get_settings().TELEGRAM_PROXY_URL)
+    else:
+        session = None
 
-    bot = Bot(token=get_settings().BOT_TOKEN)
+    bot = Bot(token=get_settings().BOT_TOKEN, session=session)
     dp = Dispatcher()
     dp.message.middleware(UpdateUserInfoMiddleware(MemoryAliasCacher()))
     dp.message.register(start_message_handler, CommandStart())
