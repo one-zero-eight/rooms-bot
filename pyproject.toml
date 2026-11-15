@@ -11,7 +11,7 @@ package-mode = false
 python = "^3.12"
 aiogram = "^3"
 aiogram-dialog = "^2.1.0"
-aiohttp = {version = "^3", extras = ["speedups"]}
+aiohttp = {version = "^3.11", extras = ["speedups"]}
 pre-commit = "^4.0.1"
 pydantic-settings = "^2"
 python-dotenv = "^1.0.1"
